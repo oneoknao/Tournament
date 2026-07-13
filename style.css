@@ -1,0 +1,135 @@
+:root {
+    --bg-dark: #0f1923;
+    --accent-red: #ff4655;
+    --text-light: #ece8e1;
+    --gold: #f1c40f;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+#app {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+/* 画面切り替え用 */
+.screen {
+    display: none;
+    text-align: center;
+}
+.screen.active {
+    display: block;
+}
+.hidden {
+    display: none !important;
+}
+
+/* ボタン共通 */
+button {
+    background-color: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 20px;
+    width: 100%;
+}
+button:active {
+    transform: scale(0.98);
+}
+
+/* スコアボード */
+.scoreboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+}
+.player-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    width: 45%;
+    border-top: 4px solid var(--accent-red);
+}
+.score {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 10px 0;
+    font-family: monospace;
+}
+.vs {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #666;
+}
+
+/* 装備・ステータス */
+.credits {
+    color: var(--gold);
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.equip-status {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+.op-status {
+    background-color: var(--gold);
+    color: #000;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 4px;
+    display: none; /* デフォルト非表示 */
+}
+.op-status.active {
+    display: block;
+    animation: flash 1s infinite alternate;
+}
+@keyframes flash {
+    from { opacity: 1; }
+    to { opacity: 0.7; }
+}
+
+/* ショップ */
+.shop-container {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+.shop-player {
+    flex: 1;
+    background: #1a2733;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: left;
+}
+.shop-player select, .shop-player label {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: #2a3a4a;
+    color: white;
+    border: none;
+}
+.op-label {
+    border-left: 4px solid var(--gold);
+}
