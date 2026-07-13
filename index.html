@@ -8,101 +8,116 @@
 </head>
 <body>
     <div id="app">
-        <section id="setup-screen" class="screen active">
-            <h1>VCT TT TOURNAMENT</h1>
+        <nav class="tabs">
+            <button class="tab-btn active" data-target="tab-register">1. 参加者登録</button>
+            <button class="tab-btn" data-target="tab-bracket">2. トーナメント表</button>
+            <button class="tab-btn" data-target="tab-match">3. 試合進行</button>
+        </nav>
+
+        <section id="tab-register" class="screen active">
+            <h2>参加者登録 (Firestore)</h2>
             <div class="input-group">
-                <label>Player A (アッパー側)</label>
-                <input type="text" id="playerA-name" value="Player A">
-            </div>
-            <div class="input-group">
-                <label>Player B (ロワー側)</label>
-                <input type="text" id="playerB-name" value="Player B">
-            </div>
-            <button id="btn-start" class="btn-primary">START MATCH</button>
-        </section>
-
-        <section id="match-screen" class="screen">
-            <div class="header-info">
-                <h2>GAME <span id="game-count">1</span> / BO3</h2>
-                <div id="ot-banner" class="hidden">OVERTIME (1ポイント交代)</div>
+                <label>選手名</label>
+                <input type="text" id="reg-name" placeholder="例: 田中">
+                <label>現在のランキング (1〜6位)</label>
+                <input type="number" id="reg-rank" min="1" max="6" placeholder="シード権に影響します">
+                <button id="btn-register" class="btn-primary">Firestoreに登録</button>
             </div>
             
-            <div class="scoreboard">
-                <div class="player-card" id="card-A">
-                    <h3 id="display-name-A">Player A</h3>
-                    <div class="score" id="score-A">0</div>
-                    <div class="credits">🪙 <span id="credits-A">2</span> CREDITS</div>
-                    <div class="equip-status">
-                        <span id="equip-weapon-A">スリッパ</span> | 
-                        <span id="equip-serve-A">制限サーブ</span>
+            <div class="registered-list">
+                <h3>登録済み選手 (<span id="player-count">0</span>/6名)</h3>
+                <ul id="players-ul"></ul>
+            </div>
+            <button id="btn-generate-bracket" class="btn-secondary hidden">トーナメント表を生成</button>
+        </section>
+
+        <section id="tab-bracket" class="screen">
+            <h2>VCT プレイオフ ブラケット</h2>
+            <p>試合を選択して「試合進行」タブへ移動します</p>
+            <div id="bracket-container" class="bracket-container">
+                </div>
+        </section>
+
+        <section id="tab-match" class="screen">
+            <div id="match-setup" class="hidden">
+                <h2 id="current-match-title">試合未選択</h2>
+                <button id="btn-start-match" class="btn-primary">このカードで試合開始 (BO3)</button>
+            </div>
+
+            <div id="match-active" class="hidden">
+                <div class="header-info">
+                    <h2>GAME <span id="game-count">1</span> / BO3</h2>
+                    <div id="ot-banner" class="hidden">OVERTIME (1ポイント交代)</div>
+                </div>
+                
+                <div class="scoreboard">
+                    <div class="player-card" id="card-A">
+                        <h3 id="display-name-A">Player A</h3>
+                        <div class="score" id="score-A">0</div>
+                        <div class="credits">🪙 <span id="credits-A">2</span> CREDITS</div>
+                        <div class="equip-status">
+                            <span id="equip-weapon-A">スリッパ</span> | <span id="equip-serve-A">制限サーブ</span>
+                        </div>
+                        <div class="op-status" id="op-A">OP所持 (+2点)</div>
+                        <button class="btn-score" onclick="window.addPoint('A')">+ POINT (A)</button>
                     </div>
-                    <div class="op-status" id="op-A">OP所持 (+2点)</div>
-                    <button class="btn-score" onclick="addPoint('A')">+ POINT (A)</button>
-                </div>
 
-                <div class="vs">VS</div>
+                    <div class="vs">VS</div>
 
-                <div class="player-card" id="card-B">
-                    <h3 id="display-name-B">Player B</h3>
-                    <div class="score" id="score-B">0</div>
-                    <div class="credits">🪙 <span id="credits-B">2</span> CREDITS</div>
-                    <div class="equip-status">
-                        <span id="equip-weapon-B">スリッパ</span> | 
-                        <span id="equip-serve-B">制限サーブ</span>
+                    <div class="player-card" id="card-B">
+                        <h3 id="display-name-B">Player B</h3>
+                        <div class="score" id="score-B">0</div>
+                        <div class="credits">🪙 <span id="credits-B">2</span> CREDITS</div>
+                        <div class="equip-status">
+                            <span id="equip-weapon-B">スリッパ</span> | <span id="equip-serve-B">制限サーブ</span>
+                        </div>
+                        <div class="op-status" id="op-B">OP所持 (+2点)</div>
+                        <button class="btn-score" onclick="window.addPoint('B')">+ POINT (B)</button>
                     </div>
-                    <div class="op-status" id="op-B">OP所持 (+2点)</div>
-                    <button class="btn-score" onclick="addPoint('B')">+ POINT (B)</button>
                 </div>
             </div>
         </section>
 
-        <section id="buy-screen" class="screen">
-            <h2>BUY PHASE</h2>
-            <p>ラウンド報酬が振り込まれました。</p>
-            
-            <div class="shop-container">
-                <div class="shop-player">
-                    <h3 id="shop-name-A">Player A</h3>
-                    <p>所持金: 🪙 <span id="shop-credits-A"></span></p>
-                    <select id="shop-weapon-A">
-                        <option value="0">スリッパ (0)</option>
-                        <option value="2">サブラケット (2)</option>
-                        <option value="4">メインラケット (4)</option>
-                    </select>
-                    <label>
-                        <input type="checkbox" id="shop-serve-A" value="2"> サーブ自由 (2)
-                    </label>
-                    <label class="op-label">
-                        <input type="checkbox" id="shop-op-A" value="8"> オペレーター (8)
-                    </label>
+        <section id="buy-screen" class="screen overlay hidden">
+            <div class="buy-content">
+                <h2>BUY PHASE</h2>
+                <div class="shop-container">
+                    <div class="shop-player">
+                        <h3 id="shop-name-A">Player A</h3>
+                        <p>所持金: 🪙 <span id="shop-credits-A"></span></p>
+                        <select id="shop-weapon-A">
+                            <option value="0">スリッパ (0)</option>
+                            <option value="2">サブラケット (2)</option>
+                            <option value="4">メインラケット (4)</option>
+                        </select>
+                        <label><input type="checkbox" id="shop-serve-A" value="2"> サーブ自由 (2)</label>
+                        <label class="op-label"><input type="checkbox" id="shop-op-A" value="8"> オペレーター (8)</label>
+                    </div>
+                    <div class="shop-player">
+                        <h3 id="shop-name-B">Player B</h3>
+                        <p>所持金: 🪙 <span id="shop-credits-B"></span></p>
+                        <select id="shop-weapon-B">
+                            <option value="0">スリッパ (0)</option>
+                            <option value="2">サブラケット (2)</option>
+                            <option value="4">メインラケット (4)</option>
+                        </select>
+                        <label><input type="checkbox" id="shop-serve-B" value="2"> サーブ自由 (2)</label>
+                        <label class="op-label"><input type="checkbox" id="shop-op-B" value="8"> オペレーター (8)</label>
+                    </div>
                 </div>
-
-                <div class="shop-player">
-                    <h3 id="shop-name-B">Player B</h3>
-                    <p>所持金: 🪙 <span id="shop-credits-B"></span></p>
-                    <select id="shop-weapon-B">
-                        <option value="0">スリッパ (0)</option>
-                        <option value="2">サブラケット (2)</option>
-                        <option value="4">メインラケット (4)</option>
-                    </select>
-                    <label>
-                        <input type="checkbox" id="shop-serve-B" value="2"> サーブ自由 (2)
-                    </label>
-                    <label class="op-label">
-                        <input type="checkbox" id="shop-op-B" value="8"> オペレーター (8)
-                    </label>
-                </div>
+                <button class="btn-primary" onclick="window.confirmBuy()">購入確定＆試合再開</button>
             </div>
-            
-            <button class="btn-primary" onclick="confirmBuy()">購入確定＆試合再開</button>
         </section>
-
-        <section id="result-screen" class="screen">
-            <h1 id="result-message">GAME WINNER</h1>
-            <p>クレジットは次ゲームに引き継がれます（スノーボール）</p>
-            <button class="btn-primary" onclick="nextGame()">次のゲームへ (0-0)</button>
+        
+        <section id="result-screen" class="screen overlay hidden">
+            <div class="buy-content">
+                <h1 id="result-message">GAME WINNER</h1>
+                <p>クレジットは次ゲームに引き継がれます</p>
+                <button class="btn-primary" onclick="window.nextGame()">次のゲームへ (0-0)</button>
+            </div>
         </section>
     </div>
-    <script src="app.js"></script>
+    
+    <script type="module" src="app.js"></script>
 </body>
 </html>
