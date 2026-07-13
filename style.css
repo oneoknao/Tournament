@@ -133,3 +133,84 @@ button:active {
 .op-label {
     border-left: 4px solid var(--gold);
 }
+
+/* タブナビゲーション */
+.tabs {
+    display: flex;
+    background: #1a2733;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+.tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 15px 10px;
+    color: #888;
+    margin: 0;
+    border-radius: 0;
+}
+.tab-btn.active {
+    background: var(--accent-red);
+    color: white;
+}
+
+/* 登録リスト */
+.registered-list {
+    background: #1a2733;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: left;
+}
+.registered-list ul {
+    list-style: none;
+    padding: 0;
+}
+.registered-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
+
+/* トーナメント表（ブラケット） */
+.bracket-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+.matchup-card {
+    background: #1a2733;
+    border-left: 4px solid var(--accent-red);
+    padding: 15px;
+    border-radius: 4px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.matchup-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; }
+.matchup-info p { margin: 0; color: #aaa; font-size: 0.9rem; }
+.btn-select-match {
+    background: var(--bg-dark);
+    border: 1px solid var(--accent-red);
+    padding: 8px 15px;
+    width: auto;
+    margin: 0;
+}
+
+/* オーバーレイ画面 (バイ/リザルト) */
+.overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 25, 35, 0.95);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.overlay:not(.active) { display: none; }
+.buy-content { width: 90%; max-width: 500px; }
+.btn-secondary { background-color: #4CAF50; }
+
