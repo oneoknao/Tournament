@@ -1,216 +1,318 @@
 :root {
-    --bg-dark: #0f1923;
-    --accent-red: #ff4655;
-    --text-light: #ece8e1;
-    --gold: #f1c40f;
+    /* VCT Official Brand Colors */
+    --vct-red: #ff4655;
+    --vct-dark: #0f1923;
+    --vct-gray: #1f2326;
+    --vct-light: #ece8e1;
+    --vct-gold: #e2b938;
 }
 
 * {
     box-sizing: border-box;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    /* 英語はOswald（縦長）、日本語はNoto Sansを使用 */
+    font-family: 'Oswald', 'Noto Sans JP', sans-serif;
 }
 
 body {
-    background-color: var(--bg-dark);
-    color: var(--text-light);
+    background-color: var(--vct-dark);
+    color: var(--vct-light);
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
+    background-image: 
+        linear-gradient(rgba(15, 25, 35, 0.9), rgba(15, 25, 35, 0.9)),
+        repeating-linear-gradient(45deg, #111 0px, #111 2px, transparent 2px, transparent 4px);
 }
 
 #app {
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     padding: 20px;
 }
 
-/* 画面切り替え用 */
-.screen {
-    display: none;
-    text-align: center;
+/* -----------------------
+   タイポグラフィ
+------------------------ */
+h1, h2, h3 {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 0;
 }
-.screen.active {
-    display: block;
-}
-.hidden {
-    display: none !important;
-}
-
-/* ボタン共通 */
-button {
-    background-color: var(--accent-red);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 4px;
-    margin-top: 20px;
-    width: 100%;
-}
-button:active {
-    transform: scale(0.98);
+h2 {
+    color: var(--vct-light);
+    border-left: 5px solid var(--vct-red);
+    padding-left: 10px;
+    font-size: 1.8rem;
 }
 
-/* スコアボード */
-.scoreboard {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 30px;
-}
-.player-card {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 15px;
-    border-radius: 8px;
-    width: 45%;
-    border-top: 4px solid var(--accent-red);
-}
-.score {
-    font-size: 4rem;
-    font-weight: bold;
-    margin: 10px 0;
-    font-family: monospace;
-}
-.vs {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #666;
-}
+/* -----------------------
+   画面・タブ制御
+------------------------ */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-/* 装備・ステータス */
-.credits {
-    color: var(--gold);
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-.equip-status {
-    font-size: 0.9rem;
-    color: #aaa;
-    margin-bottom: 10px;
-}
-.op-status {
-    background-color: var(--gold);
-    color: #000;
-    font-weight: bold;
-    padding: 5px;
-    border-radius: 4px;
-    display: none; /* デフォルト非表示 */
-}
-.op-status.active {
-    display: block;
-    animation: flash 1s infinite alternate;
-}
-@keyframes flash {
-    from { opacity: 1; }
-    to { opacity: 0.7; }
-}
-
-/* ショップ */
-.shop-container {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0;
-}
-.shop-player {
-    flex: 1;
-    background: #1a2733;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: left;
-}
-.shop-player select, .shop-player label {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    background: #2a3a4a;
-    color: white;
-    border: none;
-}
-.op-label {
-    border-left: 4px solid var(--gold);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* タブナビゲーション */
 .tabs {
     display: flex;
-    background: #1a2733;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    overflow: hidden;
+    background: var(--vct-gray);
+    margin-bottom: 30px;
+    border-bottom: 2px solid #333;
 }
 .tab-btn {
     flex: 1;
-    background: none;
+    background: transparent;
     border: none;
     padding: 15px 10px;
     color: #888;
-    margin: 0;
-    border-radius: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 4px solid transparent;
+}
+.tab-btn:hover {
+    color: var(--vct-light);
 }
 .tab-btn.active {
-    background: var(--accent-red);
-    color: white;
+    color: var(--vct-light);
+    border-bottom: 4px solid var(--vct-red);
 }
 
-/* 登録リスト */
-.registered-list {
-    background: #1a2733;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    text-align: left;
+/* -----------------------
+   入力フォーム・ボタン
+------------------------ */
+.input-group {
+    background: var(--vct-gray);
+    padding: 20px;
+    border: 1px solid #333;
+    margin-bottom: 20px;
 }
-.registered-list ul {
-    list-style: none;
-    padding: 0;
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 20px 0;
+    background: #111;
+    border: 1px solid #444;
+    color: var(--vct-light);
+    font-size: 1rem;
+    outline: none;
+}
+input:focus, select:focus {
+    border-color: var(--vct-red);
+}
+
+/* VCT風クリップパスボタン */
+button.btn-primary, button.btn-secondary {
+    background-color: var(--vct-red);
+    color: var(--vct-light);
+    border: none;
+    padding: 18px 30px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    width: 100%;
+    position: relative;
+    /* 右下を斜めにカット */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+    transition: transform 0.1s, background-color 0.2s;
+}
+button.btn-primary:hover { background-color: #ff5e6b; }
+button.btn-primary:active { transform: scale(0.98); }
+button.btn-secondary { background-color: #333; color: #fff; }
+
+/* -----------------------
+   スコアボード (試合画面)
+------------------------ */
+.scoreboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    margin-top: 20px;
+    background: var(--vct-gray);
+    padding: 2px;
+    border: 1px solid #333;
+}
+.player-card {
+    background: var(--vct-dark);
+    padding: 20px;
+    width: 48%;
+    text-align: center;
+    position: relative;
+    border-top: 4px solid transparent;
+}
+/* プレイヤーAとBでアクセントカラーを分ける（配信オーバーレイ風） */
+#card-A { border-top-color: #00ffcc; } /* ターコイズ */
+#card-B { border-top-color: var(--vct-red); }
+
+.player-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: #aaa;
+}
+.score {
+    font-size: 6rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 10px 0;
+    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+.vs {
+    display: flex;
+    align-items: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #555;
+}
+
+/* -----------------------
+   エコノミー・装備ステータス
+------------------------ */
+.credits {
+    color: var(--vct-gold);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    background: rgba(226, 185, 56, 0.1);
+    padding: 5px;
+    border-radius: 2px;
+}
+.equip-status {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #111;
+    border: 1px solid #222;
+}
+.op-status {
+    background-color: var(--vct-gold);
+    color: var(--vct-dark);
+    font-weight: 700;
+    padding: 5px;
+    margin-bottom: 15px;
+    display: none;
+    text-transform: uppercase;
+}
+.op-status.active {
+    display: block;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(226, 185, 56, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(226, 185, 56, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(226, 185, 56, 0); }
+}
+
+/* スコア加算ボタン（コンパクト化） */
+.btn-score {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+.btn-score:active { background: var(--vct-red); }
+
+/* -----------------------
+   ブラケット・登録リスト
+------------------------ */
+.registered-list, .bracket-container {
+    margin-top: 20px;
 }
 .registered-list li {
-    padding: 8px 0;
-    border-bottom: 1px solid #333;
-}
-
-/* トーナメント表（ブラケット） */
-.bracket-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
+    background: var(--vct-gray);
+    padding: 12px;
+    margin-bottom: 5px;
+    border-left: 3px solid #555;
 }
 .matchup-card {
-    background: #1a2733;
-    border-left: 4px solid var(--accent-red);
+    background: var(--vct-gray);
     padding: 15px;
-    border-radius: 4px;
-    text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid #333;
+    border-left: 4px solid var(--vct-red);
 }
-.matchup-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; }
-.matchup-info p { margin: 0; color: #aaa; font-size: 0.9rem; }
 .btn-select-match {
-    background: var(--bg-dark);
-    border: 1px solid var(--accent-red);
-    padding: 8px 15px;
-    width: auto;
-    margin: 0;
+    background: var(--vct-red);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
 }
 
-/* オーバーレイ画面 (バイ/リザルト) */
+/* -----------------------
+   バイフェーズ・オーバーレイ
+------------------------ */
 .overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(15, 25, 35, 0.95);
+    background: rgba(15, 25, 35, 0.98);
     z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .overlay:not(.active) { display: none; }
-.buy-content { width: 90%; max-width: 500px; }
-.btn-secondary { background-color: #4CAF50; }
+.buy-content {
+    width: 95%;
+    max-width: 600px;
+    background: var(--vct-dark);
+    padding: 30px;
+    border: 1px solid var(--vct-red);
+    box-shadow: 0 0 30px rgba(255, 70, 85, 0.2);
+}
+.shop-container {
+    display: flex;
+    gap: 15px;
+    margin: 25px 0;
+}
+.shop-player {
+    flex: 1;
+    background: var(--vct-gray);
+    padding: 20px;
+    border: 1px solid #333;
+}
+.shop-player label {
+    display: block;
+    padding: 12px;
+    background: #111;
+    margin-top: 10px;
+    border: 1px solid #333;
+    cursor: pointer;
+}
+.shop-player label:hover { border-color: #555; }
+.op-label { border-left: 4px solid var(--vct-gold) !important; }
 
+/* OTバナー */
+#ot-banner {
+    background: var(--vct-red);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    animation: flash 1s infinite alternate;
+}
+@keyframes flash {
+    from { opacity: 1; }
+    to { opacity: 0.8; }
+}
