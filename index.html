@@ -65,6 +65,37 @@
         .btn-delete-player { background: transparent; color: var(--vct-red); border: 1px solid var(--vct-red); padding: 2px 8px; cursor: pointer; border-radius: 4px; font-size: 0.8rem; margin-left: 10px; }
         .btn-delete-player:hover { background: var(--vct-red); color: white; }
 
+                /* Format Rules */
+        .rule-block { background: var(--vct-gray); padding: 15px; border-left: 4px solid var(--vct-cyan); margin-bottom: 15px; }
+        .rule-block h4 { margin-top: 0; color: var(--vct-cyan); font-size: 1.2rem; margin-bottom: 10px; }
+        .rule-block ul { margin: 0; padding-left: 20px; line-height: 1.6; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+
+        /* Mobile UI Adjustments */
+        @media (max-width: 600px) {
+            #app { padding: 10px; }
+            .tabs { margin-bottom: 15px; padding-bottom: 5px; }
+            .tab-btn { font-size: 1rem; padding: 12px 15px; }
+            h2 { font-size: 1.4rem; }
+            
+            .tree-stage { flex-direction: column; gap: 10px; }
+            
+            .scoreboard { flex-direction: column; gap: 10px; padding: 10px; background: transparent; border: none; }
+            .player-card { width: 100%; border: 1px solid #333; }
+            .vs { display: none; }
+            .score { font-size: 5rem; }
+            
+            .shop-container { flex-direction: column; gap: 20px; margin: 10px 0; }
+            .shop-player { width: 100%; padding: 15px; }
+            
+            .buy-content { padding: 20px; }
+            .result-content h1 { font-size: 3rem; }
+            #result-winner-name { font-size: 2rem; }
+            
+            .match-player-row p { max-width: 120px; }
+            .rule-block table { min-width: 500px; }
+        }
+
         /* Bracket UI */
         .bracket-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px; }
         .bracket-section h3 { color: #888; font-size: 1rem; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px; }
