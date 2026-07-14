@@ -431,7 +431,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Initialize Firebase (Assuming correct config from user)
+        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDVXoiovn7IHTZFYo9-_ueuCWniN9BNwO8",
             authDomain: "keirin-table-tennis-tour.firebaseapp.com",
@@ -464,10 +464,12 @@
 
         // --- Application State ---
         let participants = [];
+        let matches = {}; 
         let matchState = {
+            id: null,
             players: {
-                A: { name: "Player A", score: 0, games: 0, credits: ECON.INITIAL, winStreak: 0, lossStreak: 0, loadout: { weapon: 'スリッパ', serve: false, op: false }, debuff: null },
-                B: { name: "Player B", score: 0, games: 0, credits: ECON.INITIAL, winStreak: 0, lossStreak: 0, loadout: { weapon: 'スリッパ', serve: false, op: false }, debuff: null }
+                A: { id: null, name: "Player A", score: 0, games: 0, credits: ECON.INITIAL, winStreak: 0, lossStreak: 0, loadout: { weapon: 'スリッパ', serve: false, op: false }, debuff: null },
+                B: { id: null, name: "Player B", score: 0, games: 0, credits: ECON.INITIAL, winStreak: 0, lossStreak: 0, loadout: { weapon: 'スリッパ', serve: false, op: false }, debuff: null }
             },
             phase: 'SETUP', // SETUP, MATCH, BUY, END_GAME, END_MATCH
             totalPoints: 0,
@@ -489,22 +491,209 @@
         });
 
         // --- Global Helpers ---
-        window.showMessage = function(title, text, onOk) {
-            document.getElementById('msgbox-title').innerText = title;
-            document.getElementById('msgbox-text').innerText = text;
-            document.getElementById('msgbox-screen').classList.add('active');
-            const okBtn = document.getElementById('msgbox-btn-ok');
-            okBtn.onclick = () => {
-                document.getElementById('msgbox-screen').classList.remove('active');
-                if (onOk) onOk();
+        window.showMessage = function(title, text, isConfirm = false) {
+            return new Promise((resolve) => {
+                document.getElementById('msgbox-title').innerText = title;
+                document.getElementById('msgbox-text').innerText = text;
+                const screen = document.getElementById('msgbox-screen');
+                const btnOk = document.getElementById('msgbox-btn-ok');
+                const btnCancel = document.getElementById('msgbox-btn-cancel');
+                
+                screen.classList.add('active');
+                if (isConfirm) btnCancel.classList.remove('hidden'); else btnCancel.classList.add('hidden');
+
+                const handleOk = () => { cleanup(); resolve(true); };
+                const handleCancel = () => { cleanup(); resolve(false); };
+                const cleanup = () => { 
+                    btnOk.removeEventListener('click', handleOk); 
+                    btnCancel.removeEventListener('click', handleCancel); 
+                    screen.classList.remove('active'); 
+                };
+                btnOk.addEventListener('click', handleOk); 
+                btnCancel.addEventListener('click', handleCancel);
+            });
+        };
+
+        // --- Data Fetching (Firestore Integration Restored) ---
+        const fetchParticipants = async () => {
+            try {
+                const q = query(collection(db, "participants"), orderBy("rank"));
+                const snap = await getDocs(q);
+                participants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                updatePlayerList();
+                
+                const btnInitBracket = document.getElementById('btn-init-bracket');
+                if (participants.length === 6) {
+                    btnInitBracket.classList.remove('hidden');
+                } else {
+                    btnInitBracket.classList.add('hidden');
+                }
+                
+                await fetchMatches();
+            } catch (error) {
+                console.error("データの取得に失敗:", error);
+            }
+        };
+
+        const fetchMatches = async () => {
+            try {
+                const docRef = doc(db, "tournament", "bracket");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    matches = docSnap.data();
+                    renderBracket();
+                } else {
+                    matches = {};
+                    renderBracket();
+                }
+            } catch (error) {
+                console.error("ブラケット取得失敗:", error);
+            }
+        };
+        
+        document.addEventListener('DOMContentLoaded', fetchParticipants);
+
+        // --- Player Registration & Reset ---
+        window.registerPlayer = async function() {
+            const nameInput = document.getElementById('reg-name').value.trim();
+            const rankInput = parseInt(document.getElementById('reg-rank').value);
+
+            if (!nameInput || isNaN(rankInput) || rankInput < 1 || rankInput > 6) {
+                await window.showMessage("エラー", "正しい選手名とランキング(1〜6)を入力してください。");
+                return;
+            }
+            if (participants.length >= 6) {
+                await window.showMessage("エラー", "すでに6名の選手がエントリーしています。");
+                return;
+            }
+            if (participants.some(p => p.rank === rankInput)) {
+                await window.showMessage("エラー", `ランキング ${rankInput} 位はすでに登録されています。`);
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "participants"), { name: nameInput, rank: rankInput });
+                document.getElementById('reg-name').value = '';
+                document.getElementById('reg-rank').value = '';
+                await fetchParticipants();
+            } catch (error) {
+                console.error("登録エラー:", error);
+            }
+        };
+
+        window.resetPlayers = async function() {
+            if(await window.showMessage("確認", "全選手の登録を削除しますか？", true)) {
+                const snap = await getDocs(collection(db, "participants"));
+                snap.forEach(d => deleteDoc(d.ref));
+                await deleteDoc(doc(db, "tournament", "bracket"));
+                matches = {};
+                fetchParticipants();
+                
+                document.getElementById('knockouts-container').innerHTML = '<p style="color: #555;">大会表を作成してください。</p>';
+                document.getElementById('upper-col1').innerHTML = '<p style="color:#555;">未生成</p>';
+                document.getElementById('upper-col2').innerHTML = '';
+                document.getElementById('lower-col1').innerHTML = '<p style="color:#555;">未生成</p>';
+                document.getElementById('lower-col2').innerHTML = '';
+                document.getElementById('grand-container').innerHTML = '<p style="color:#555;">未生成</p>';
+            }
+        };
+
+        function updatePlayerList() {
+            const ul = document.getElementById('players-ul');
+            ul.innerHTML = "";
+            participants.forEach(p => {
+                ul.innerHTML += `<li>Rank ${p.rank} : <strong>${p.name}</strong></li>`;
+            });
+            document.getElementById('player-count').innerText = participants.length;
+        }
+
+        // --- Bracket Generation ---
+        window.generateBracket = async function() {
+            if (participants.length !== 6) return;
+            
+            participants.sort((a,b) => a.rank - b.rank);
+            const p = participants;
+
+            matches = {
+                M1: { id: "M1", title: "Knockout 1", pA: p[2], pB: p[5], winner: null, loser: null, isDone: false, nextW: "M4", slotW: "pB" },
+                M2: { id: "M2", title: "Knockout 2", pA: p[3], pB: p[4], winner: null, loser: null, isDone: false, nextW: "M3", slotW: "pB" },
+                M3: { id: "M3", title: "Upper Semi 1", pA: p[0], pB: null, winner: null, loser: null, isDone: false, nextW: "M6", slotW: "pA", nextL: "M5", slotL: "pA" },
+                M4: { id: "M4", title: "Upper Semi 2", pA: p[1], pB: null, winner: null, loser: null, isDone: false, nextW: "M6", slotW: "pB", nextL: "M5", slotL: "pB" },
+                M5: { id: "M5", title: "Lower Semi", pA: null, pB: null, winner: null, loser: null, isDone: false, nextW: "M7", slotW: "pB" },
+                M6: { id: "M6", title: "Upper Final", pA: null, pB: null, winner: null, loser: null, isDone: false, nextW: "M8", slotW: "pA", nextL: "M7", slotL: "pA" },
+                M7: { id: "M7", title: "Lower Final", pA: null, pB: null, winner: null, loser: null, isDone: false, nextW: "M8", slotW: "pB" },
+                M8: { id: "M8", title: "Grand Final", pA: null, pB: null, winner: null, loser: null, isDone: false }
             };
+
+            await setDoc(doc(db, "tournament", "bracket"), matches);
+            await window.showMessage("成功", "トーナメント表を生成しました！予選・本戦タブを確認してください。");
+            renderBracket();
+            document.querySelector('[data-target="tab-knockouts"]').click();
+        };
+
+        const createMatchCard = (m) => {
+            if(!m) return '';
+            const nameA = m.pA ? m.pA.name : "TBD";
+            const nameB = m.pB ? m.pB.name : "TBD";
+            const canPlay = m.pA && m.pB && !m.isDone;
+            const btnHTML = canPlay ? `<button class="btn-play" onclick="window.setupMatch('${m.id}')">PLAY</button>` : '';
+            const doneClass = m.isDone ? "completed" : "";
+            
+            return `
+                <div class="match-card ${doneClass}">
+                    <div style="flex:1;">
+                        <span style="font-size:0.8rem; color:#888;">${m.id}: ${m.title}</span>
+                        <div class="match-player-row">
+                            <p class="${m.winner?.id === m.pA?.id ? 'winner' : ''}">${nameA}</p>
+                        </div>
+                        <div class="match-player-row">
+                            <p class="${m.winner?.id === m.pB?.id ? 'winner' : ''}">${nameB}</p>
+                        </div>
+                    </div>
+                    <div>${m.isDone ? '<span style="color:#888; font-weight:bold;">DONE</span>' : btnHTML}</div>
+                </div>
+            `;
+        };
+
+        const renderBracket = () => {
+            if (!matches || !matches.M1) return;
+            document.getElementById('knockouts-container').innerHTML = createMatchCard(matches.M1) + createMatchCard(matches.M2);
+            document.getElementById('upper-col1').innerHTML = createMatchCard(matches.M3) + createMatchCard(matches.M4);
+            document.getElementById('upper-col2').innerHTML = createMatchCard(matches.M6);
+            document.getElementById('lower-col1').innerHTML = createMatchCard(matches.M5);
+            document.getElementById('lower-col2').innerHTML = createMatchCard(matches.M7);
+            document.getElementById('grand-container').innerHTML = createMatchCard(matches.M8);
         };
 
         // --- Match Logic ---
+        window.setupMatch = (matchId) => {
+            const m = matches[matchId];
+            if (!m || !m.pA || !m.pB) return;
+
+            matchState.id = matchId;
+            matchState.players.A.id = m.pA.id;
+            matchState.players.A.name = m.pA.name;
+            matchState.players.B.id = m.pB.id;
+            matchState.players.B.name = m.pB.name;
+            
+            document.getElementById('current-match-title').innerText = `${m.id} - ${m.title}`;
+            
+            resetMatch();
+            
+            document.getElementById('match-setup').classList.add('hidden');
+            document.getElementById('match-active').classList.remove('hidden');
+            document.getElementById('nav-match-btn').click();
+        };
+
         window.startTestMatch = function() {
+            matchState.id = null; // null for Test Matches
             matchState.players.A.name = participants[0] ? participants[0].name : "Test Player A";
             matchState.players.B.name = participants[1] ? participants[1].name : "Test Player B";
+            
+            document.getElementById('current-match-title').innerText = "TEST MATCH";
             resetMatch();
+            
             document.getElementById('match-setup').classList.add('hidden');
             document.getElementById('match-active').classList.remove('hidden');
         };
@@ -526,7 +715,7 @@
                 ps.debuff = null;
             });
             updateMatchUI();
-            showMessage("MATCH START", "第1ゲームを開始します。\n初期資金は $800 です。");
+            window.showMessage("MATCH START", "第1ゲームを開始します。\n初期資金は $800 です。");
         }
 
         function resetGame() {
@@ -559,7 +748,7 @@
             if (pDefender.loadout.op) {
                 pDefender.loadout.op = false;
                 matchState.operatorHolder = null;
-                showMessage("OPERATOR DROPPED", `${pDefender.name} がオペレーターを落としました！`);
+                window.showMessage("OPERATOR DROPPED", `${pDefender.name} がオペレーターを落としました！`);
             }
 
             // 3. Economy (Modified for better balance)
@@ -585,7 +774,7 @@
                 });
                 matchState.operatorHolder = null;
                 updateMatchUI();
-                showMessage("OVERTIME INITIATED", "10-10 デュースに突入しました！\n2点差をつけるまで試合は継続します。\n(両者にMAX資金とフル装備が付与されました)");
+                window.showMessage("OVERTIME INITIATED", "10-10 デュースに突入しました！\n2点差をつけるまで試合は継続します。\n(両者にMAX資金とフル装備が付与されました)");
                 return;
             }
 
@@ -699,7 +888,7 @@
             });
 
             if (!valid) {
-                alert("クレジットが不足しているプレイヤーがいます。装備を見直してください。");
+                window.showMessage("エラー", "クレジットが不足しているプレイヤーがいます。装備を見直してください。");
                 return;
             }
 
@@ -729,7 +918,7 @@
         function updateMatchUI() {
             const isOT = matchState.isOT;
             document.getElementById('ot-banner').classList.toggle('hidden', !isOT);
-            document.getElementById('current-match-title').innerText = isOT ? "OVERTIME" : `ROUND SUM: ${matchState.totalPoints}`;
+            document.getElementById('current-match-title').innerText = isOT ? "OVERTIME" : (matchState.id ? `${matches[matchState.id].id} - ${matches[matchState.id].title}` : "TEST MATCH");
             
             ['A', 'B'].forEach(p => {
                 const ps = matchState.players[p];
@@ -759,56 +948,51 @@
             document.getElementById('result-screen').classList.add('active');
         }
 
-        window.handleNextAction = function() {
+        // --- Next Action & Finish Match ---
+        window.handleNextAction = async function() {
             document.getElementById('result-screen').classList.remove('active');
             if (matchState.phase === 'END_GAME') {
                 resetGame();
             } else if (matchState.phase === 'END_MATCH') {
-                window.abandonMatch();
+                const winnerKey = matchState.players.A.games === 2 ? 'A' : 'B';
+                await window.finishMatch(winnerKey);
             }
+        };
+
+        window.finishMatch = async (winnerKey) => {
+            // テストマッチの処理
+            if (!matchState.id) {
+                window.abandonMatch();
+                return;
+            }
+            
+            const m = matches[matchState.id];
+            const winnerData = matchState.players[winnerKey];
+            const loserData = matchState.players[winnerKey === 'A' ? 'B' : 'A'];
+
+            m.isDone = true;
+            m.winner = { id: winnerData.id, name: winnerData.name };
+            m.loser = { id: loserData.id, name: loserData.name };
+
+            // トーナメントツリーの進行
+            if (m.nextW && matches[m.nextW]) {
+                matches[m.nextW][m.slotW] = m.winner;
+            }
+            if (m.nextL && matches[m.nextL]) {
+                matches[m.nextL][m.slotL] = m.loser;
+            }
+
+            // Firestore更新
+            await setDoc(doc(db, "tournament", "bracket"), matches);
+            
+            window.abandonMatch();
+            renderBracket();
+            document.querySelector('[data-target="tab-bracket"]').click();
         };
 
         window.abandonMatch = function() {
             document.getElementById('match-active').classList.add('hidden');
             document.getElementById('match-setup').classList.remove('hidden');
-        };
-
-        // --- Basic Tournament Mock Logic (For completeness) ---
-        window.registerPlayer = function() {
-            const name = document.getElementById('reg-name').value.trim();
-            const rank = document.getElementById('reg-rank').value;
-            if (name && rank && participants.length < 6) {
-                participants.push({ name, rank: parseInt(rank) });
-                document.getElementById('reg-name').value = '';
-                document.getElementById('reg-rank').value = '';
-                updatePlayerList();
-            }
-        };
-
-        window.resetPlayers = function() {
-            participants = [];
-            updatePlayerList();
-            document.getElementById('btn-init-bracket').classList.add('hidden');
-        };
-
-        function updatePlayerList() {
-            const ul = document.getElementById('players-ul');
-            ul.innerHTML = '';
-            participants.forEach(p => {
-                ul.innerHTML += `<li>${p.name} (Rank: ${p.rank})</li>`;
-            });
-            document.getElementById('player-count').innerText = participants.length;
-            if (participants.length >= 2) {
-                document.getElementById('btn-init-bracket').classList.remove('hidden');
-            }
-        }
-
-        window.generateBracket = function() {
-            if (participants.length < 2) return;
-            showMessage("BRACKET GENERATED", "大会表が生成されました。予選および本戦タブを確認してください。");
-            // Dummy population
-            const ko = document.getElementById('knockouts-container');
-            ko.innerHTML = `<div class="match-card"><div><p>${participants[0].name}</p><p>${participants[1] ? participants[1].name : 'TBD'}</p></div><button class="btn-play" onclick="document.getElementById('nav-match-btn').click(); window.startTestMatch();">PLAY</button></div>`;
         };
 
     </script>
