@@ -245,12 +245,52 @@
             </div>
         </section>
 
-        <!-- 5. RULES (Static content, minimized for brevity) -->
+        <!-- 5. RULES -->
         <section id="tab-rules" class="screen">
             <h2>FORMAT & RULES</h2>
-            <div class="bracket-section"><p>※前回のルールが適用されます。（デバフ追加: 3点以上リードしている側は装備が強制ダウングレード＋OP無効化されます）</p></div>
-        </section>
+            
+            <div class="bracket-section">
+                <h3>■ 基本ルール (試合進行)</h3>
+                <ul>
+                    <li><strong>勝利条件:</strong> 1ゲーム11点先取（2点差をつけること）。2ゲーム先取（BO3）でマッチ勝利。</li>
+                    <li><strong>デュース (OT):</strong> 10-10になった場合はオーバータイム(OT)に突入。</li>
+                    <li><strong>BUYフェーズ:</strong> 各ゲーム開始時、および両者の合計得点が「6の倍数」になるごとに装備購入フェーズが発生。</li>
+                </ul>
+            </div>
 
+            <div class="bracket-section">
+                <h3>■ マネーシステム (Economy)</h3>
+                <ul>
+                    <li><strong>初期資金 / ゲーム開始時:</strong> $800（※第2・第3ゲーム開始時は最低$1,900を担保）</li>
+                    <li><strong>最大資金 (上限):</strong> $9,000</li>
+                    <li><strong>ポイント獲得 (勝利):</strong> +$3,000</li>
+                    <li><strong>ポイント喪失 (敗北):</strong> +$1,900</li>
+                    <li><strong>連敗ボーナス:</strong> 連続してポイントを失うごとに +$500（最大+$1,000まで加算）</li>
+                    <li><strong>OT (オーバータイム):</strong> 両者とも資金 $5,000 固定でリセット。</li>
+                </ul>
+            </div>
+
+            <div class="bracket-section">
+                <h3>■ ショップアイテム (Equipments)</h3>
+                <ul>
+                    <li><strong>スリッパ:</strong> $0 (基本装備)</li>
+                    <li><strong>サブラケット:</strong> $1,600</li>
+                    <li><strong>メインラケット:</strong> $2,900</li>
+                    <li><strong>サーブ自由:</strong> $1,000 (購入しない場合はサーブ種類に制限あり)</li>
+                    <li><strong>オペレーター (OP):</strong> $4,700 (獲得ポイントが 2倍 になる)</li>
+                </ul>
+            </div>
+
+            <div class="bracket-section" style="border-color: var(--vct-red);">
+                <h3 style="color: var(--vct-red);">■ リードペナルティ (Debuff)</h3>
+                <ul>
+                    <li><strong>発動条件:</strong> 相手に対して <strong>3点以上のリード</strong> を奪っている選手にのみ自動適用。</li>
+                    <li><strong>ペナルティ内容:</strong> どんな装備を買っていても強制的に「スリッパ」状態になり、OP(得点2倍)も無効化される。</li>
+                    <li>※点差が2点以内に縮まるまで継続します。負けている側には一切適用されません。</li>
+                </ul>
+            </div>
+        </section>
+        
         <!-- BUY PHASE OVERLAY -->
         <section id="buy-screen" class="screen overlay">
             <div class="buy-content">
