@@ -94,6 +94,21 @@
         
         .result-content { text-align: center; }
         .result-content h1 { font-size: 4rem; color: var(--vct-gold); margin-bottom: 10px; }
+        
+        @media (max-width: 600px) {
+            .tabs { margin-bottom: 15px; }
+            .tab-btn { font-size: 0.9rem; padding: 10px 5px; }
+            h2 { font-size: 1.4rem; }
+            .scoreboard { flex-direction: column; gap: 10px; padding: 10px; background: transparent; border: none; }
+            .player-card { width: 100%; border: 1px solid #333; }
+            .vs { display: none; }
+            .shop-container { flex-direction: column; gap: 20px; margin: 10px 0; }
+            .shop-player { width: 100%; }
+            .buy-content { padding: 15px; max-height: 95vh; overflow-y: auto; }
+            .score { font-size: 4rem; }
+            .result-content h1 { font-size: 3rem; }
+            #result-winner-name { font-size: 2rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -116,13 +131,19 @@
             <div class="bracket-section">
                 <h3>登録済み選手 (<span id="player-count">0</span>/6名)</h3>
                 <ul id="players-ul" style="list-style:none; padding:0; line-height:2;"></ul>
-                <button id="btn-init-bracket" class="btn-primary hidden" style="margin-top:10px;">トーナメント表を作成</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button id="btn-init-bracket" class="btn-primary hidden">トーナメント表を作成</button>
+                    <button id="btn-reset-players" class="btn-secondary">選手リセット</button>
+                </div>
             </div>
         </section>
 
         <!-- Tab 2: Bracket -->
         <section id="tab-bracket" class="screen">
-            <h2>PLAYOFF BRACKET</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>PLAYOFF BRACKET</h2>
+                <button id="btn-reset-bracket" class="btn-secondary" style="padding: 5px 10px; font-size: 0.9rem; width: auto;">大会リセット</button>
+            </div>
             <div class="bracket-container" id="bracket-container">
                 <!-- Generated via JS -->
             </div>
@@ -221,7 +242,24 @@
                 <button id="btn-next-action" class="btn-primary" onclick="window.handleNextAction()">次のゲームへ</button>
             </div>
         </section>
+
+        <section id="msgbox-screen" class="screen overlay" style="z-index: 999;">
+            <div class="buy-content" style="text-align:center; max-width: 400px; height: auto;">
+                <h2 id="msgbox-title" style="color:var(--vct-red); border:none; padding:0;">MESSAGE</h2>
+                <p id="msgbox-text" style="font-size:1.1rem; margin:20px 0; white-space: pre-wrap;"></p>
+                <div style="display:flex; gap:10px; justify-content:center;">
+                    <button id="msgbox-btn-ok" class="btn-primary" style="width:auto; min-width:100px;">OK</button>
+                    <button id="msgbox-btn-cancel" class="btn-secondary hidden" style="width:auto; min-width:100px;">キャンセル</button>
+                </div>
+            </div>
+        </section>
     </div>
+
+    <!-- Firebase SDK (v9) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
 
     <!-- Firebase SDK (v9) -->
     <script type="module">
@@ -239,7 +277,6 @@
             measurementId: "G-EDPVXY3NYW"
         };
 
-        
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -267,6 +304,36 @@
             }
         };
 
+        window.showMessage = function(title, text, isConfirm = false) {
+            return new Promise((resolve) => {
+                document.getElementById('msgbox-title').innerText = title;
+                document.getElementById('msgbox-text').innerText = text;
+                const screen = document.getElementById('msgbox-screen');
+                const btnOk = document.getElementById('msgbox-btn-ok');
+                const btnCancel = document.getElementById('msgbox-btn-cancel');
+                
+                screen.classList.add('active');
+                
+                if (isConfirm) {
+                    btnCancel.classList.remove('hidden');
+                } else {
+                    btnCancel.classList.add('hidden');
+                }
+
+                const handleOk = () => { cleanup(); resolve(true); };
+                const handleCancel = () => { cleanup(); resolve(false); };
+                
+                const cleanup = () => {
+                    btnOk.removeEventListener('click', handleOk);
+                    btnCancel.removeEventListener('click', handleCancel);
+                    screen.classList.remove('active');
+                };
+
+                btnOk.addEventListener('click', handleOk);
+                btnCancel.addEventListener('click', handleCancel);
+            });
+        };
+
         // UI Tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -281,12 +348,28 @@
         document.getElementById('btn-register').addEventListener('click', async () => {
             const name = document.getElementById('reg-name').value;
             const rank = parseInt(document.getElementById('reg-rank').value);
-            if(!name || !rank) return alert("名前とランキングを入力してください");
+            if(!name || !rank) {
+                showMessage("入力エラー", "名前とランキングを入力してください");
+                return;
+            }
             try {
                 await addDoc(collection(db, "participants"), { name, rank });
                 document.getElementById('reg-name').value = ""; document.getElementById('reg-rank').value = "";
                 fetchParticipants();
-            } catch (e) { alert("Firestoreエラー。Config設定とセキュリティルール(テストモード)を確認してください。\n" + e.message); }
+            } catch (e) { showMessage("Firestoreエラー", "Config設定とセキュリティルール(テストモード)を確認してください。\n" + e.message); }
+        });
+
+        document.getElementById('btn-reset-players').addEventListener('click', async () => {
+            const isOk = await showMessage("確認", "登録済みの全選手データを削除しますか？", true);
+            if(!isOk) return;
+            try {
+                const snap = await getDocs(collection(db, "participants"));
+                const deletePromises = [];
+                snap.forEach(d => deletePromises.push(deleteDoc(d.ref)));
+                await Promise.all(deletePromises);
+                fetchParticipants();
+                showMessage("完了", "選手登録をリセットしました");
+            } catch(e) { showMessage("エラー", "リセットエラー: " + e.message); }
         });
 
         async function fetchParticipants() {
@@ -307,7 +390,10 @@
 
         // --- 2. Bracket Management ---
         document.getElementById('btn-init-bracket').addEventListener('click', async () => {
-            if(participants.length < 6) return alert("6名必要です");
+            if(participants.length < 6) {
+                showMessage("エラー", "6名必要です");
+                return;
+            }
             
             // Initial Bracket Structure (6-team Double Elim)
             const initialBracket = [
@@ -322,9 +408,20 @@
             ];
 
             await setDoc(doc(db, "tournament", "bracket"), { matches: initialBracket });
-            alert("ブラケットを生成しました！");
+            showMessage("完了", "ブラケットを生成しました！");
             loadBracket();
             document.querySelector('[data-target="tab-bracket"]').click();
+        });
+
+        document.getElementById('btn-reset-bracket').addEventListener('click', async () => {
+            const isOk = await showMessage("確認", "大会結果とブラケットをリセットしますか？\n(進行状況がすべて消去されます)", true);
+            if(!isOk) return;
+            try {
+                await deleteDoc(doc(db, "tournament", "bracket"));
+                tournament = [];
+                renderBracket();
+                showMessage("完了", "大会結果をリセットしました");
+            } catch(e) { showMessage("エラー", "リセットエラー: " + e.message); }
         });
 
         async function loadBracket() {
@@ -407,7 +504,7 @@
             if (scorer.hasOp) pts = 2;
             else if (opponent.hasOp) {
                 pts = 2; opponent.hasOp = false; scorer.hasOp = true;
-                alert(`⚠️ ${scorer.name} がオペレーターを奪取しました！`);
+                showMessage("武器奪取", `⚠️ ${scorer.name} がオペレーターを奪取しました！`);
             }
 
             scorer.score += pts; scorer.roundPts += pts;
@@ -452,7 +549,9 @@
             document.getElementById('buy-screen').classList.add('active');
         }
 
-        window.confirmBuy = function() {
+        window.confirmBuy = async function() {
+            let hasAlert = false;
+            let alertMsg = "";
             ['A', 'B'].forEach(key => {
                 const p = state.players[key];
                 const wCost = parseInt(document.getElementById(`shop-weapon-${key}`).value);
@@ -461,8 +560,9 @@
                 
                 const total = wCost + sCost + oCost;
                 if (total > p.credits) {
-                    alert(`${p.name} の資金が不足しています！強制エコラウンドになります。`);
+                    alertMsg += `${p.name} の資金が不足しています！強制エコラウンドになります。\n`;
                     p.weapon = 0; p.serve = 0; p.hasOp = false;
+                    hasAlert = true;
                 } else {
                     p.credits -= total; p.weapon = wCost; p.serve = sCost; p.hasOp = oCost > 0;
                 }
@@ -471,6 +571,11 @@
                 document.getElementById(`shop-serve-${key}`).checked = false;
                 document.getElementById(`shop-op-${key}`).checked = false;
             });
+            
+            if(hasAlert) {
+                await showMessage("エコラウンド", alertMsg);
+            }
+            
             updateUI();
             document.getElementById('buy-screen').classList.remove('active');
         };
@@ -484,8 +589,8 @@
                 state.players[key].serve = ECON.COST.SERVE;
                 state.players[key].hasOp = false;
             });
-            alert("OVERTIME 突入！\n・マネーMAX フルバイ固定\n・1ポイント交代");
             updateUI();
+            showMessage("OVERTIME", "OVERTIME 突入！\n・マネーMAX フルバイ固定\n・1ポイント交代");
         }
 
         // --- Game / Match Resolution ---
