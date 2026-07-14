@@ -276,48 +276,117 @@
             </div>
         </section>
 
-        <!-- 5. RULES -->
+       <!-- 5. RULES -->
         <section id="tab-rules" class="screen">
             <h2>FORMAT & RULES</h2>
             
             <div class="bracket-section">
-                <h3>■ 基本ルール (試合進行)</h3>
-                <ul>
-                    <li><strong>勝利条件:</strong> 1ゲーム11点先取（2点差をつけること）。2ゲーム先取（BO3）でマッチ勝利。</li>
-                    <li><strong>デュース (OT):</strong> 10-10になった場合はオーバータイム(OT)に突入。</li>
-                    <li><strong>BUYフェーズ:</strong> 各ゲーム開始時、および両者の合計得点が「6の倍数」になるごとに装備購入フェーズが発生。</li>
-                </ul>
+                <h3>🏆 大会フォーマット</h3>
+                <div class="rule-block">
+                    <h4>予選 (KNOCKOUT STAGE)</h4>
+                    <ul>
+                        <li>ランキング 3位〜6位 の4名で実施。</li>
+                        <li>勝者2名が本戦 (Upper Bracket) へ進出。</li>
+                    </ul>
+                </div>
+                <div class="rule-block" style="border-left-color: var(--vct-red);">
+                    <h4>本戦 (PLAYOFF BRACKET)</h4>
+                    <ul>
+                        <li>シード1位・2位 ＋ 予選勝者2名 の合計4名で実施。</li>
+                        <li><strong>ダブルエリミネーション方式</strong>。一度負けても「Lower Bracket (敗者復活戦)」から決勝を目指せる。</li>
+                        <li>Upper Bracket勝者とLower Bracket勝者が <strong>Grand Final</strong> で激突。</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="bracket-section">
-                <h3>■ マネーシステム (Economy)</h3>
-                <ul>
-                    <li><strong>初期資金 / ゲーム開始時:</strong> $800（※第2・第3ゲーム開始時は最低$1,900を担保）</li>
-                    <li><strong>最大資金 (上限):</strong> $9,000</li>
-                    <li><strong>ポイント獲得 (勝利):</strong> +$3,000</li>
-                    <li><strong>ポイント喪失 (敗北):</strong> +$1,900</li>
-                    <li><strong>連敗ボーナス:</strong> 連続してポイントを失うごとに +$500（最大+$1,000まで加算）</li>
-                    <li><strong>OT (オーバータイム):</strong> 両者とも資金 $5,000 固定でリセット。</li>
-                </ul>
-            </div>
+                <h3>🔫 試合ルール & エコノミー (BUY PHASE)</h3>
+                <div class="rule-block" style="border-left-color: #4ade80;">
+                    <h4>試合形式・資金ルール</h4>
+                    <ul>
+                        <li><strong>BO3形式</strong>（2ゲーム先取で勝利）。1ゲーム11点マッチ（デュースあり）。</li>
+                        <li>第1ゲーム（ピストルラウンド）の初期資金は <strong>$800</strong>。<strong>（※第2・第3ゲーム開始時は最低 $1,900 を担保）</strong></li>
+                        <li><strong>毎ポイント終了時</strong>に資金が振り込まれる。（勝利: +$3,000 / 敗北: +$1,900 / 連敗ボーナス: +$500ずつ加算 最大+$1000）。上限所持金は $9,000。</li>
+                        <li><strong>OT (オーバータイム):</strong> 10-10のデュースに突入した場合、両者とも<strong>資金 $5,000 固定</strong>でリセットされる。</li>
+                        <li><strong>スリッパラウンド:</strong> 0〜2点（試合全体）。BUY PAUSEは発生しません。</li>
+                        <li><strong>通常ラウンド:</strong> 3点目以降〜OT。<strong>6点ごと</strong>にBUY PAUSEが発生し、装備の変更・購入が可能です。</li>
+                    </ul>
+                </div>
 
-            <div class="bracket-section">
-                <h3>■ ショップアイテム (Equipments)</h3>
-                <ul>
-                    <li><strong>スリッパ:</strong> $0 (基本装備)</li>
-                    <li><strong>サブラケット:</strong> $1,600</li>
-                    <li><strong>メインラケット:</strong> $2,900</li>
-                    <li><strong>サーブ自由:</strong> $1,000 (購入しない場合はサーブ種類に制限あり)</li>
-                    <li><strong>オペレーター (OP):</strong> $4,700 (獲得ポイントが 2倍 になる)</li>
-                </ul>
-            </div>
+                <!-- システム実装済みのデバフルールを追加 -->
+                <div class="rule-block" style="border-left-color: var(--vct-red);">
+                    <h4 style="color: var(--vct-red);">🚨 リードペナルティ (Debuff)</h4>
+                    <ul>
+                        <li><strong>発動条件:</strong> 相手に対して <strong>3点以上のリード</strong> を奪っている選手にのみ自動適用。</li>
+                        <li><strong>ペナルティ内容:</strong> どんな装備を買っていても強制的に「スリッパ」状態になり、OP(得点2倍)も無効化される。</li>
+                        <li>※点差が2点以内に縮まるまで継続します。負けている側（リードを許している側）には一切適用されません。</li>
+                    </ul>
+                </div>
 
-            <div class="bracket-section" style="border-color: var(--vct-red);">
-                <h3 style="color: var(--vct-red);">■ リードペナルティ (Debuff)</h3>
-                <ul>
-                    <li><strong>発動条件:</strong> 相手に対して <strong>3点以上のリード</strong> を奪っている選手にのみ自動適用。</li>
-                    <li><strong>ペナルティ内容:</strong> どんな装備を買っていても強制的に「スリッパ」状態になり、OP(得点2倍)も無効化される。</li>
-                    <li>※点差が2点以内に縮まるまで継続します。負けている側には一切適用されません。</li>
+                <div class="rule-block" style="border-left-color: var(--vct-gold);">
+                    <h4>ショップアイテム一覧</h4>
+                    <div class="table-responsive" style="overflow-x: auto;">
+                        <table style="width: 100%; text-align: left; margin-top: 10px; border-collapse: collapse; min-width: 400px;">
+                            <tr style="border-bottom: 1px solid #444;">
+                                <th style="padding: 8px;">アイテム</th>
+                                <th style="padding: 8px;">コスト</th>
+                                <th style="padding: 8px;">効果・制限</th>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">スリッパ</td>
+                                <td style="padding: 8px; color: #4ade80;">$0</td>
+                                <td style="padding: 8px; color: #aaa;">デフォルト装備 (無料)。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">サブラケット</td>
+                                <td style="padding: 8px; color: #4ade80;">$1,600</td>
+                                <td style="padding: 8px; color: #aaa;">サブ用のラケットを使用可能。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">メインラケット</td>
+                                <td style="padding: 8px; color: #4ade80;">$2,900</td>
+                                <td style="padding: 8px; color: #aaa;">メインのラケットを使用可能。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">サーブ自由</td>
+                                <td style="padding: 8px; color: #4ade80;">$1,000</td>
+                                <td style="padding: 8px; color: #aaa;">買わない場合は「制限サーブ」となる。</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; color: var(--vct-gold); font-weight: bold;">オペレーター</td>
+                                <td style="padding: 8px; color: #4ade80; font-weight: bold;">$4,700</td>
+                                <td style="padding: 8px; color: var(--vct-light);"><strong>所持している間、取得ポイントが2倍(2点)になる。</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bracket-section" style="border-color: var(--vct-gold); background: linear-gradient(135deg, rgba(226, 185, 56, 0.08), rgba(0,0,0,0.4)); margin-top: 30px;">
+                <h3 style="color: var(--vct-gold); border-bottom: 1px solid rgba(226, 185, 56, 0.5); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                    <span style="font-size: 1.4rem;">🏆</span> PRIZE - 試合結果報酬
+                </h3>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 1.05rem;">
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(226, 185, 56, 0.3);">
+                        <span style="color: var(--vct-gold); font-weight: 700; font-size: 1.2rem; text-shadow: 0 0 5px rgba(226,185,56,0.3);">1位</span>
+                        <span style="color: var(--vct-light);">2位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
+                        <span style="color: silver; font-weight: 700; font-size: 1.15rem;">2位</span>
+                        <span style="color: var(--vct-light);">3位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
+                        <span style="color: #cd7f32; font-weight: 700; font-size: 1.1rem;">3位</span>
+                        <span style="color: var(--vct-light);">4位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
+                        <span style="color: #aaa; font-weight: 700;">4位</span>
+                        <span style="color: var(--vct-light);">5位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px;">
+                        <span style="color: #777; font-weight: 700;">5-6位</span>
+                        <span style="color: #ccc;">“先輩”からジュース1本 🧃</span>
+                    </li>
                 </ul>
             </div>
         </section>
