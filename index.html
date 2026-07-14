@@ -4,849 +4,590 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VCT Table Tennis Manager</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --vct-red: #ff4655;
             --vct-dark: #0f1923;
-            --vct-gray: #1f2326;
-            --vct-light: #ece8e1;
-            --vct-gold: #e2b938;
-            --vct-cyan: #00ffcc;
+            --vct-gray: #ece8e1;
+            --vct-gold: #eebb4d;
         }
-        * { box-sizing: border-box; font-family: 'Oswald', 'Noto Sans JP', sans-serif; }
         body {
-            background-color: var(--vct-dark); color: var(--vct-light); margin: 0; padding: 0; display: flex; justify-content: center;
-            background-image: linear-gradient(rgba(15, 25, 35, 0.93), rgba(15, 25, 35, 0.93)), repeating-linear-gradient(45deg, #111 0px, #111 2px, transparent 2px, transparent 4px);
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: var(--vct-dark);
+            color: var(--vct-gray);
             overflow-x: hidden;
+            user-select: none;
         }
-        #app { width: 100%; max-width: 900px; padding: 20px; }
+        .oswald {
+            font-family: 'Oswald', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 25, 35, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .vct-border {
+            position: relative;
+        }
+        .vct-border::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background-color: var(--vct-red);
+        }
+        .vct-border-gold::before { background-color: var(--vct-gold); }
         
-        /* Typography */
-        h1, h2, h3 { text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
-        h2 { border-left: 5px solid var(--vct-red); padding-left: 10px; font-size: 1.8rem; }
+        .btn-vct {
+            background-color: var(--vct-red);
+            color: white;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+        .btn-vct:hover:not(:disabled) {
+            background-color: transparent;
+            border-color: var(--vct-red);
+            color: var(--vct-red);
+        }
+        .btn-vct:disabled {
+            background-color: #333;
+            color: #888;
+            cursor: not-allowed;
+        }
+        .btn-vct-outline {
+            background-color: transparent;
+            border: 1px solid var(--vct-gray);
+            color: var(--vct-gray);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-vct-outline:hover:not(:disabled) {
+            background-color: var(--vct-gray);
+            color: var(--vct-dark);
+        }
+        .btn-vct-outline.active {
+            background-color: var(--vct-gray);
+            color: var(--vct-dark);
+            border-color: var(--vct-gray);
+        }
         
-        /* Screens & Tabs */
-        .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.3s ease-out; }
+        /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         
-        /* Tab Navigation (Responsive Scroll) */
-        .tabs { 
-            display: flex; background: var(--vct-gray); margin-bottom: 30px; border-bottom: 2px solid #333; 
-            overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
+        .op-glow {
+            box-shadow: 0 0 15px rgba(238, 187, 77, 0.5);
+            border-color: var(--vct-gold) !important;
         }
-        .tabs::-webkit-scrollbar { height: 4px; }
-        .tabs::-webkit-scrollbar-thumb { background: var(--vct-red); }
-        .tab-btn { 
-            flex: 0 0 auto; background: transparent; border: none; padding: 15px 20px; color: #888; 
-            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; 
-            border-bottom: 4px solid transparent; 
-        }
-        .tab-btn.active { color: var(--vct-light); border-bottom: 4px solid var(--vct-red); }
+        .debuff-text { color: var(--vct-red); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* Forms & Buttons */
-        .input-group { background: var(--vct-gray); padding: 20px; border: 1px solid #333; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0 20px 0; background: #111; border: 1px solid #444; color: var(--vct-light); font-size: 1rem; outline: none; }
-        input:focus, select:focus { border-color: var(--vct-red); }
-        
-        button.btn-primary, button.btn-secondary {
-            background-color: var(--vct-red); color: var(--vct-light); border: none; padding: 15px 20px; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; cursor: pointer; width: 100%;
-            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); transition: 0.1s;
-        }
-        button.btn-primary:active { transform: scale(0.98); }
-        button.btn-secondary { background-color: #333; }
-        button:disabled { background-color: #555 !important; cursor: not-allowed; color: #888; }
-
-        /* Bracket UI (Tree Structure) */
-        .bracket-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px; }
-        .bracket-section h3 { color: #888; font-size: 1rem; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        
-        .tree-stage { display: flex; gap: 20px; margin-bottom: 10px; }
-        .tree-col { display: flex; flex-direction: column; justify-content: space-around; flex: 1; gap: 15px; }
-
-        .match-card { background: var(--vct-gray); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #555; position: relative; margin-bottom: 10px;}
-        .match-card.active-match { border-left-color: var(--vct-red); }
-        .match-card.completed { opacity: 0.6; }
-        
-        /* Match Info & Scores */
-        .match-player-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-        .match-player-row p { margin: 0; font-size: 1.1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
-        .match-player-row p.winner { color: var(--vct-gold); }
-        .match-player-score { font-size: 1rem; font-weight: 700; color: #fff; background: #333; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
-        .match-player-score.winner-score { background: var(--vct-red); }
-        .btn-play { background: var(--vct-red); color: white; border: none; padding: 8px 15px; font-weight: bold; cursor: pointer; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); width: auto; }
-
-        /* Scoreboard */
-        .match-header { text-align: center; margin-bottom: 20px; }
-        .game-count-display { display: flex; justify-content: center; gap: 20px; font-size: 1.5rem; font-weight: bold; margin-top: 10px; color: var(--vct-gold); }
-        .scoreboard { display: flex; justify-content: space-between; align-items: stretch; background: var(--vct-gray); padding: 2px; border: 1px solid #333; }
-        .player-card { background: var(--vct-dark); padding: 20px; width: 48%; text-align: center; border-top: 4px solid transparent; position: relative; }
-        #card-A { border-top-color: var(--vct-cyan); }
-        #card-B { border-top-color: var(--vct-red); }
-        .score { font-size: 6rem; font-weight: 700; line-height: 1; margin: 10px 0; }
-        .vs { display: flex; align-items: center; font-size: 1.8rem; font-weight: 700; color: #555; }
-
-        /* Economy */
-        .credits { color: #4ade80; font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; background: rgba(74, 222, 128, 0.1); padding: 5px; }
-        .equip-status { font-size: 0.9rem; color: #888; margin-bottom: 10px; padding: 10px; background: #111; border: 1px solid #222; }
-        .op-status { background-color: var(--vct-gold); color: #000; font-weight: 700; padding: 5px; margin-bottom: 10px; display: none; animation: pulse 1s infinite alternate; }
-        .op-status.active { display: block; }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
-
-        .btn-score { background: #333; color: white; border: none; padding: 15px; width: 100%; font-size: 1.2rem; font-weight: 700; cursor: pointer; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); margin-top: 10px; }
-        .btn-score:active { background: var(--vct-red); }
-
-        /* Overlays (Buy, Result, MsgBox) */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 25, 35, 0.98); z-index: 100; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .overlay:not(.active) { display: none; }
-        .buy-content { width: 95%; max-width: 700px; background: var(--vct-dark); padding: 30px; border: 1px solid var(--vct-red); max-height: 95vh; overflow-y: auto; }
-        .shop-container { display: flex; gap: 15px; margin: 20px 0; }
-        .shop-player { flex: 1; background: var(--vct-gray); padding: 20px; border: 1px solid #333; }
-        .shop-player label { display: block; padding: 15px 10px; background: #111; margin-top: 10px; border: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .shop-player label:hover { border-color: #555; }
-        .cost { color: #4ade80; font-weight: bold; }
-        .op-label { border-left: 4px solid var(--vct-gold) !important; }
-        
-        .ot-option { border-left: 4px solid var(--vct-cyan) !important; font-weight: bold; }
-        .ot-option-op { border-left: 4px solid var(--vct-gold) !important; font-weight: bold; }
-
-        #ot-banner { background: var(--vct-red); color: white; text-align: center; padding: 10px; font-weight: 700; font-size: 1.2rem; margin-bottom: 10px; }
-        
-        .result-content { text-align: center; }
-        .result-content h1 { font-size: 4rem; color: var(--vct-gold); margin-bottom: 10px; }
-        #result-winner-name { font-size: 2.5rem; margin-bottom: 30px; }
-
-        /* Format Rules */
-        .rule-block { background: var(--vct-gray); padding: 15px; border-left: 4px solid var(--vct-cyan); margin-bottom: 15px; }
-        .rule-block h4 { margin-top: 0; color: var(--vct-cyan); font-size: 1.2rem; margin-bottom: 10px; }
-        .rule-block ul { margin: 0; padding-left: 20px; line-height: 1.6; }
-        .table-responsive { width: 100%; overflow-x: auto; }
-
-        /* Mobile UI Adjustments */
-        @media (max-width: 600px) {
-            #app { padding: 10px; }
-            .tabs { margin-bottom: 15px; padding-bottom: 5px; }
-            .tab-btn { font-size: 1rem; padding: 12px 15px; }
-            h2 { font-size: 1.4rem; }
-            
-            .tree-stage { flex-direction: column; gap: 10px; }
-            
-            .scoreboard { flex-direction: column; gap: 10px; padding: 10px; background: transparent; border: none; }
-            .player-card { width: 100%; border: 1px solid #333; }
-            .vs { display: none; }
-            .score { font-size: 5rem; }
-            
-            .shop-container { flex-direction: column; gap: 20px; margin: 10px 0; }
-            .shop-player { width: 100%; padding: 15px; }
-            
-            .buy-content { padding: 20px; }
-            .result-content h1 { font-size: 3rem; }
-            #result-winner-name { font-size: 2rem; }
-            
-            .match-player-row p { max-width: 120px; }
-            .rule-block table { min-width: 500px; }
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--vct-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--vct-red); }
     </style>
 </head>
-<body>
-    <div id="app">
-        <nav class="tabs">
-            <button class="tab-btn active" data-target="tab-register">1. エントリー</button>
-            <button class="tab-btn" data-target="tab-knockouts">2. 予選</button>
-            <button class="tab-btn" data-target="tab-bracket">3. 本戦</button>
-            <button class="tab-btn" data-target="tab-match" id="nav-match-btn">4. 進行</button>
-            <button class="tab-btn" data-target="tab-rules">5. ルール</button>
-        </nav>
+<body class="min-h-screen flex flex-col items-center py-8 px-4">
 
-        <section id="tab-register" class="screen active">
-            <h2>エントリー</h2>
-            <div class="input-group">
-                <input type="text" id="reg-name" placeholder="選手名 (例: 田中)">
-                <input type="number" id="reg-rank" min="1" max="6" placeholder="現在のランキング (1〜6位)">
-                <button id="btn-register" class="btn-primary">登録する</button>
-            </div>
-            <div class="bracket-section">
-                <h3>登録済み選手 (<span id="player-count">0</span>/6名)</h3>
-                <ul id="players-ul" style="list-style:none; padding:0; line-height:2;"></ul>
-                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
-                    <button id="btn-init-bracket" class="btn-primary hidden">大会表を作成</button>
-                    <button id="btn-reset-players" class="btn-secondary">選手リセット</button>
-                    <button id="btn-reset-bracket" class="btn-secondary">大会リセット</button>
+    <header class="w-full max-w-5xl flex justify-between items-center mb-8">
+        <div>
+            <h1 class="oswald text-4xl font-bold tracking-wider text-white">VCT<span class="text-[#ff4655]">TT</span> MANAGER</h1>
+            <p class="text-sm text-gray-400">Valorant Champions Tour / Table Tennis</p>
+        </div>
+        <div class="text-right glass-panel p-4 rounded vct-border vct-border-gold">
+            <p class="text-sm text-gray-400 mb-1">MATCH STATUS</p>
+            <div class="oswald text-2xl" id="match-status">BO3 - GAME 1</div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Player A Card -->
+        <section id="card-A" class="glass-panel rounded-lg p-6 flex flex-col vct-border relative transition-all duration-300">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="oswald text-3xl font-bold" id="name-A">PLAYER A</h2>
+                <div class="flex gap-1" id="games-A">
+                    <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-transparent" id="win-A-1"></div>
+                    <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-transparent" id="win-A-2"></div>
                 </div>
             </div>
-        </section>
-
-        <section id="tab-knockouts" class="screen">
-            <h2>KNOCKOUT STAGE (予選)</h2>
-            <p style="color: #aaa;">ランキング3位〜6位によるサバイバルマッチ。</p>
-            <div class="bracket-section">
-                <h3>UPPER KNOCKOUT</h3>
-                <div id="knockouts-container" style="display: flex; flex-direction: column; gap: 15px;">
-                    </div>
-            </div>
-        </section>
-
-        <section id="tab-bracket" class="screen">
-            <h2>PLAYOFF BRACKET (本戦)</h2>
-            <p style="color: #aaa;">シード権を持つ上位陣が待ち受けるツリー型ステージ。</p>
             
-            <div class="bracket-section">
-                <h3>UPPER BRACKET</h3>
-                <div class="tree-stage">
-                    <div class="tree-col" id="upper-col1">
-                        </div>
-                    <div class="tree-col" id="upper-col2">
-                        </div>
+            <div class="text-center my-6">
+                <span class="oswald text-8xl font-bold" id="score-A">0</span>
+            </div>
+
+            <div class="bg-[#1a2733] rounded p-4 mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-400 text-sm">CREDITS</span>
+                    <span class="oswald text-2xl text-green-400">$<span id="credits-A">800</span></span>
+                </div>
+                <div class="flex justify-between items-center text-sm border-t border-gray-700 pt-2">
+                    <span class="text-gray-400">連勝/連敗</span>
+                    <span id="streak-A">-</span>
                 </div>
             </div>
 
-            <div class="bracket-section">
-                <h3>LOWER BRACKET (敗者復活)</h3>
-                <div class="tree-stage">
-                    <div class="tree-col" id="lower-col1">
-                        </div>
-                    <div class="tree-col" id="lower-col2">
-                        </div>
+            <div class="bg-[#1a2733] rounded p-4 mb-6 flex-grow">
+                <h3 class="text-xs text-gray-400 mb-2 uppercase tracking-widest">Loadout</h3>
+                <div class="flex flex-col gap-2 font-bold text-sm">
+                    <div class="flex justify-between"><span>🔫 Weapon:</span> <span id="equip-weapon-A" class="text-white">スリッパ</span></div>
+                    <div class="flex justify-between"><span>🎾 Serve:</span> <span id="equip-serve-A" class="text-white">制限</span></div>
+                    <div id="equip-op-A" class="hidden justify-between text-[#eebb4d]"><span>🎯 Operator:</span> <span>所持 (得点2倍)</span></div>
                 </div>
             </div>
 
-            <div class="bracket-section" style="border-color: var(--vct-red);">
-                <h3 style="color: var(--vct-gold);">GRAND FINAL</h3>
-                <div id="grand-container">
-                    </div>
-            </div>
+            <button class="btn-vct w-full py-4 text-xl font-bold oswald tracking-wider" onclick="app.addPoint('A')">
+                SCORE POINT +
+            </button>
         </section>
 
-        <section id="tab-match" class="screen">
-            <div id="match-setup" class="bracket-section">
-                <h2>試合未選択</h2>
-                <p>予選または本戦タブから進行する試合を選択してください。</p>
+        <!-- Center VS / Info -->
+        <section class="flex flex-col justify-center items-center gap-6">
+            <div class="oswald text-5xl font-bold text-gray-600">VS</div>
+            <div class="glass-panel p-4 rounded w-full text-center">
+                <p class="text-sm text-gray-400 mb-2">TOTAL POINTS IN GAME</p>
+                <p class="oswald text-3xl font-bold text-white" id="total-points">0</p>
+                <p class="text-xs text-[#ff4655] mt-2" id="next-buy-info">Next Buy Phase at 6 pts</p>
+            </div>
+            <div class="glass-panel p-4 rounded w-full">
+                <p class="text-xs text-gray-400 mb-2 uppercase text-center">Action Log</p>
+                <div id="action-log" class="text-sm h-32 overflow-y-auto flex flex-col gap-1 text-gray-300">
+                    <div>> Match Initialized.</div>
+                </div>
+            </div>
+            <button class="btn-vct-outline w-full py-2 text-sm mt-auto" onclick="app.resetMatch()">
+                ↺ RESET MATCH
+            </button>
+        </section>
+
+        <!-- Player B Card -->
+        <section id="card-B" class="glass-panel rounded-lg p-6 flex flex-col vct-border relative transition-all duration-300">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex gap-1" id="games-B">
+                    <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-transparent" id="win-B-2"></div>
+                    <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-transparent" id="win-B-1"></div>
+                </div>
+                <h2 class="oswald text-3xl font-bold text-right" id="name-B">PLAYER B</h2>
+            </div>
+            
+            <div class="text-center my-6">
+                <span class="oswald text-8xl font-bold" id="score-B">0</span>
             </div>
 
-            <div id="match-active" class="hidden">
-                <div class="match-header">
-                    <h2 id="current-match-title">MATCH TITLE</h2>
-                    <div class="game-count-display">
-                        <span id="games-won-A" style="color: var(--vct-cyan);">0</span>
-                        <span>MAPS</span>
-                        <span id="games-won-B" style="color: var(--vct-red);">0</span>
+            <div class="bg-[#1a2733] rounded p-4 mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-400 text-sm">CREDITS</span>
+                    <span class="oswald text-2xl text-green-400">$<span id="credits-B">800</span></span>
+                </div>
+                <div class="flex justify-between items-center text-sm border-t border-gray-700 pt-2">
+                    <span class="text-gray-400">連勝/連敗</span>
+                    <span id="streak-B">-</span>
+                </div>
+            </div>
+
+            <div class="bg-[#1a2733] rounded p-4 mb-6 flex-grow">
+                <h3 class="text-xs text-gray-400 mb-2 uppercase tracking-widest text-right">Loadout</h3>
+                <div class="flex flex-col gap-2 font-bold text-sm">
+                    <div class="flex justify-between"><span>🔫 Weapon:</span> <span id="equip-weapon-B" class="text-white">スリッパ</span></div>
+                    <div class="flex justify-between"><span>🎾 Serve:</span> <span id="equip-serve-B" class="text-white">制限</span></div>
+                    <div id="equip-op-B" class="hidden justify-between text-[#eebb4d]"><span>🎯 Operator:</span> <span>所持 (得点2倍)</span></div>
+                </div>
+            </div>
+
+            <button class="btn-vct w-full py-4 text-xl font-bold oswald tracking-wider" onclick="app.addPoint('B')">
+                SCORE POINT +
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Buy Phase Modal -->
+    <div id="modal-buy" class="fixed inset-0 bg-[#0f1923]/95 z-50 flex flex-col hidden backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="max-w-6xl w-full mx-auto my-auto">
+            <h2 class="oswald text-5xl font-bold text-[#ff4655] mb-2 text-center tracking-wider">BUY PHASE</h2>
+            <p class="text-center text-gray-400 mb-8">装備を購入してください。現在の装備は50%で売却され所持金に還元されています。</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Buy Menu A -->
+                <div class="glass-panel p-6 rounded vct-border">
+                    <h3 class="oswald text-2xl font-bold mb-4 flex justify-between">
+                        <span id="buy-name-A">PLAYER A</span>
+                        <span class="text-green-400">$<span id="buy-credits-A">0</span></span>
+                    </h3>
+                    <div class="grid gap-3" id="shop-items-A">
+                        <!-- Shop items injected via JS -->
                     </div>
-                    <div id="ot-banner" class="hidden">OVER TIME (デュース)</div>
                 </div>
                 
-                <div class="scoreboard">
-                    <div class="player-card" id="card-A">
-                        <h3 id="display-name-A">Player A</h3>
-                        <div class="score" id="score-A">0</div>
-                        <div class="credits">$<span id="credits-A">800</span></div>
-                        <div class="equip-status">
-                            <span id="equip-weapon-A">スリッパ</span><br>
-                            <span id="equip-serve-A">制限サーブ</span>
-                        </div>
-                        <div class="op-status" id="op-A">OP所持 (得点2倍)</div>
-                        <button class="btn-score" id="btn-score-A" onclick="window.addPoint('A')">+ POINT (A)</button>
-                    </div>
-
-                    <div class="vs">VS</div>
-
-                    <div class="player-card" id="card-B">
-                        <h3 id="display-name-B">Player B</h3>
-                        <div class="score" id="score-B">0</div>
-                        <div class="credits">$<span id="credits-B">800</span></div>
-                        <div class="equip-status">
-                            <span id="equip-weapon-B">スリッパ</span><br>
-                            <span id="equip-serve-B">制限サーブ</span>
-                        </div>
-                        <div class="op-status" id="op-B">OP所持 (得点2倍)</div>
-                        <button class="btn-score" id="btn-score-B" onclick="window.addPoint('B')">+ POINT (B)</button>
-                    </div>
-                </div>
-                <button class="btn-secondary" style="margin-top:20px;" onclick="window.abandonMatch()">試合を中断して戻る</button>
-            </div>
-        </section>
-
-        <section id="tab-rules" class="screen">
-            <h2>FORMAT & RULES</h2>
-            
-            <div class="bracket-section">
-                <h3>🏆 大会フォーマット</h3>
-                <div class="rule-block">
-                    <h4>予選 (KNOCKOUT STAGE)</h4>
-                    <ul>
-                        <li>ランキング 3位〜6位 の4名で実施。</li>
-                        <li>勝者2名が本戦 (Upper Bracket) へ進出。</li>
-                    </ul>
-                </div>
-                <div class="rule-block" style="border-left-color: var(--vct-red);">
-                    <h4>本戦 (PLAYOFF BRACKET)</h4>
-                    <ul>
-                        <li>シード1位・2位 ＋ 予選勝者2名 の合計4名で実施。</li>
-                        <li><strong>ダブルエリミネーション方式</strong>。一度負けても「Lower Bracket (敗者復活戦)」から決勝を目指せる。</li>
-                        <li>Upper Bracket勝者とLower Bracket勝者が <strong>Grand Final</strong> で激突。</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="bracket-section">
-                <h3>🔫 試合ルール & エコノミー (BUY PHASE)</h3>
-                <div class="rule-block" style="border-left-color: #4ade80;">
-                    <h4>試合形式・資金ルール</h4>
-                    <ul>
-                        <li><strong>BO3形式</strong>（2ゲーム先取で勝利）。1ゲーム11点マッチ（デュースあり）。</li>
-                        <li>第1ゲーム（ピストルラウンド）の初期資金は <strong>$800</strong>。</li>
-                        <li><strong>毎ポイント終了時</strong>に資金が振り込まれる。（勝利: +$3,000 / 敗北: +$1,900 / 連敗ボーナス: +$500ずつ加算 最大+$1000）。上限所持金は $9,000。</li>
-                        <li><strong>スリッパラウンド:</strong> 0〜2点（試合全体）。BUY PAUSEは発生しません。</li>
-                        <li><strong>通常ラウンド:</strong> 3点目以降〜OT。<strong>6点ごと</strong>にBUY PAUSEが発生し、装備の変更・購入が可能です。</li>
-                    </ul>
-                </div>
-                <div class="rule-block" style="border-left-color: var(--vct-gold);">
-                    <h4>ショップアイテム一覧</h4>
-                    <div class="table-responsive">
-                        <table style="width: 100%; text-align: left; margin-top: 10px; border-collapse: collapse;">
-                            <tr style="border-bottom: 1px solid #444;">
-                                <th style="padding: 8px;">アイテム</th>
-                                <th style="padding: 8px;">コスト</th>
-                                <th style="padding: 8px;">効果・制限</th>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #333;">
-                                <td style="padding: 8px;">スリッパ</td>
-                                <td style="padding: 8px; color: #4ade80;">$0</td>
-                                <td style="padding: 8px; color: #aaa;">デフォルト装備 (無料)。</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #333;">
-                                <td style="padding: 8px;">サブラケット</td>
-                                <td style="padding: 8px; color: #4ade80;">$1,600</td>
-                                <td style="padding: 8px; color: #aaa;">サブ用のラケットを使用可能。</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #333;">
-                                <td style="padding: 8px;">メインラケット</td>
-                                <td style="padding: 8px; color: #4ade80;">$2,900</td>
-                                <td style="padding: 8px; color: #aaa;">メインのラケットを使用可能。</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #333;">
-                                <td style="padding: 8px;">サーブ自由</td>
-                                <td style="padding: 8px; color: #4ade80;">$1,000</td>
-                                <td style="padding: 8px; color: #aaa;">買わない場合は「制限サーブ」となる。</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px; color: var(--vct-gold); font-weight: bold;">オペレーター</td>
-                                <td style="padding: 8px; color: #4ade80; font-weight: bold;">$4,700</td>
-                                <td style="padding: 8px; color: var(--vct-light);"><strong>所持している間、取得ポイントが2倍(2点)になる。</strong></td>
-                            </tr>
-                        </table>
+                <!-- Buy Menu B -->
+                <div class="glass-panel p-6 rounded vct-border">
+                    <h3 class="oswald text-2xl font-bold mb-4 flex justify-between">
+                        <span id="buy-name-B">PLAYER B</span>
+                        <span class="text-green-400">$<span id="buy-credits-B">0</span></span>
+                    </h3>
+                    <div class="grid gap-3" id="shop-items-B">
+                        <!-- Shop items injected via JS -->
                     </div>
                 </div>
             </div>
             
-            <div class="bracket-section" style="border-color: var(--vct-gold); background: linear-gradient(135deg, rgba(226, 185, 56, 0.08), rgba(0,0,0,0.4)); margin-top: 30px;">
-                <h3 style="color: var(--vct-gold); border-bottom: 1px solid rgba(226, 185, 56, 0.5); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                    <span style="font-size: 1.4rem;">🏆</span> PRIZE - 試合結果報酬
-                </h3>
-                <ul style="list-style: none; padding: 0; margin: 0; font-size: 1.05rem;">
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(226, 185, 56, 0.3);">
-                        <span style="color: var(--vct-gold); font-weight: 700; font-size: 1.2rem; text-shadow: 0 0 5px rgba(226,185,56,0.3);">1位</span>
-                        <span style="color: var(--vct-light);">2位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
-                        <span style="color: silver; font-weight: 700; font-size: 1.15rem;">2位</span>
-                        <span style="color: var(--vct-light);">3位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
-                        <span style="color: #cd7f32; font-weight: 700; font-size: 1.1rem;">3位</span>
-                        <span style="color: var(--vct-light);">4位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
-                        <span style="color: #aaa; font-weight: 700;">4位</span>
-                        <span style="color: var(--vct-light);">5位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px;">
-                        <span style="color: #777; font-weight: 700;">5-6位</span>
-                        <span style="color: #ccc;">“先輩”からジュース1本 🧃</span>
-                    </li>
-                </ul>
+            <div class="mt-8 text-center">
+                <button class="btn-vct py-4 px-16 text-2xl font-bold oswald tracking-wider" onclick="app.confirmBuy()">
+                    CONFIRM LOADOUT / 確定
+                </button>
             </div>
-        </section>
-
-        <section id="buy-screen" class="screen overlay">
-            <div class="buy-content">
-                <h2>BUY PHASE</h2>
-                <p style="color: #aaa;" id="buy-desc-text">資金を使用して装備を購入してください。（※現在の装備価値は所持金に還元されて計算されます）</p>
-                <div class="shop-container">
-                    <div class="shop-player">
-                        <h3 id="shop-name-A">Player A</h3>
-                        <div id="shop-normal-A">
-                            <p style="font-size:1.5rem; margin:10px 0;">資金: $<span id="shop-credits-A" class="cost"></span></p>
-                            <select id="shop-weapon-A">
-                                <option value="0">スリッパ ($0)</option>
-                                <option value="1600">サブラケット ($1,600)</option>
-                                <option value="2900">メインラケット ($2,900)</option>
-                            </select>
-                            <label><input type="checkbox" id="shop-serve-A" value="1000"> サーブ自由 <span class="cost">$1,000</span></label>
-                            <label class="op-label"><input type="checkbox" id="shop-op-A" value="4700"> オペレーター (得点2倍) <span class="cost">$4,700</span></label>
-                        </div>
-                    </div>
-                    
-                    <div class="shop-player">
-                        <h3 id="shop-name-B">Player B</h3>
-                        <div id="shop-normal-B">
-                            <p style="font-size:1.5rem; margin:10px 0;">資金: $<span id="shop-credits-B" class="cost"></span></p>
-                            <select id="shop-weapon-B">
-                                <option value="0">スリッパ ($0)</option>
-                                <option value="1600">サブラケット ($1,600)</option>
-                                <option value="2900">メインラケット ($2,900)</option>
-                            </select>
-                            <label><input type="checkbox" id="shop-serve-B" value="1000"> サーブ自由 <span class="cost">$1,000</span></label>
-                            <label class="op-label"><input type="checkbox" id="shop-op-B" value="4700"> オペレーター (得点2倍) <span class="cost">$4,700</span></label>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="window.confirmBuy()">購入確定＆再開</button>
-            </div>
-        </section>
-
-        <section id="result-screen" class="screen overlay">
-            <div class="result-content">
-                <h1 id="result-title">GAME WINNER</h1>
-                <h2 id="result-winner-name">Player Name</h2>
-                <button id="btn-next-action" class="btn-primary" onclick="window.handleNextAction()">次のゲームへ</button>
-            </div>
-        </section>
-
-        <section id="msgbox-screen" class="screen overlay" style="z-index: 999;">
-            <div class="buy-content" style="text-align:center; max-width: 400px; height: auto;">
-                <h2 id="msgbox-title" style="color:var(--vct-red); border:none; padding:0;">MESSAGE</h2>
-                <p id="msgbox-text" style="font-size:1.1rem; margin:20px 0; white-space: pre-wrap;"></p>
-                <div style="display:flex; gap:10px; justify-content:center;">
-                    <button id="msgbox-btn-ok" class="btn-primary" style="width:auto; min-width:100px;">OK</button>
-                    <button id="msgbox-btn-cancel" class="btn-secondary hidden" style="width:auto; min-width:100px;">キャンセル</button>
-                </div>
-            </div>
-        </section>
+        </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    <!-- Alert / Message Modal -->
+    <div id="modal-alert" class="fixed inset-0 bg-black/80 z-[60] flex hidden items-center justify-center p-4">
+        <div class="glass-panel p-8 max-w-md w-full rounded border-t-4 border-[#ff4655] text-center fade-in">
+            <h2 class="oswald text-3xl font-bold text-white mb-4" id="alert-title">MESSAGE</h2>
+            <p class="text-gray-300 mb-8" id="alert-message">This is an alert.</p>
+            <button class="btn-vct py-2 px-8 font-bold oswald" onclick="app.closeAlert()">OK</button>
+        </div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDVXoiovn7IHTZFYo9-_ueuCWniN9BNwO8",
-            authDomain: "keirin-table-tennis-tour.firebaseapp.com",
-            projectId: "keirin-table-tennis-tour",
-            storageBucket: "keirin-table-tennis-tour.firebasestorage.app",
-            messagingSenderId: "26380855770",
-            appId: "1:26380855770:web:fa243fd95d8afcdcea38e3",
-            measurementId: "G-EDPVXY3NYW"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // --- Economy Settings ---
+    <script>
+        // Game Constants & Economy Data
         const ECON = {
-            MAX: 9000, PISTOL: 800, WIN: 3000, LOSS: 1900, LOSS_BONUS: 500,
-            COST: { SUB: 1600, MAIN: 2900, SERVE: 1000, OP: 4700 }
-        };
-
-        // --- State Management ---
-        let participants = [];
-        let matches = {}; // M1〜M8の対戦情報
-        
-        let matchState = {
-            id: null,
-            isOT: false,
-            roundCount: 0, 
-            players: {
-                A: { id: null, name: "", score: 0, gamesWon: 0, credits: ECON.PISTOL, lossStreak: 0, weapon: 0, serve: 0, hasOp: false },
-                B: { id: null, name: "", score: 0, gamesWon: 0, credits: ECON.PISTOL, lossStreak: 0, weapon: 0, serve: 0, hasOp: false }
+            MAX: 8000,
+            PISTOL: 800,
+            WIN: 2500,
+            LOSS: 1500,
+            LOSS_BONUS: 500, // Max +1000
+            WIN_TAX_3: -500,
+            WIN_TAX_4: -1000,
+            COST: {
+                sub: 1600,
+                main: 2900,
+                serve: 1000,
+                op: 4700
             }
         };
 
-        // --- UI Utility: Message Box ---
-        window.showMessage = function(title, text, isConfirm = false) {
-            return new Promise((resolve) => {
-                document.getElementById('msgbox-title').innerText = title;
-                document.getElementById('msgbox-text').innerText = text;
-                const screen = document.getElementById('msgbox-screen');
-                const btnOk = document.getElementById('msgbox-btn-ok');
-                const btnCancel = document.getElementById('msgbox-btn-cancel');
+        const SHOP_DATA = [
+            { id: 'sub', name: 'サブラケット', type: 'weapon', cost: ECON.COST.sub },
+            { id: 'main', name: 'メインラケット', type: 'weapon', cost: ECON.COST.main },
+            { id: 'serve', name: 'サーブ自由', type: 'serve', cost: ECON.COST.serve },
+            { id: 'op', name: 'オペレーター', type: 'op', cost: ECON.COST.op }
+        ];
+
+        // Central Application Object
+        const app = {
+            state: {},
+            buyState: { A: {}, B: {} }, // Temporary state during buy phase
+            
+            init() {
+                this.resetMatch();
+            },
+
+            resetMatch() {
+                this.state = {
+                    phase: 'MATCH', // 'MATCH', 'BUY', 'END_GAME', 'END_MATCH'
+                    ot: false,
+                    totalScore: 0,
+                    players: {
+                        A: { id: 'A', name: 'Player A', score: 0, games: 0, credits: ECON.PISTOL, winStreak: 0, lossStreak: 0, loadout: { weapon: 'slipper', serve: false, op: false } },
+                        B: { id: 'B', name: 'Player B', score: 0, games: 0, credits: ECON.PISTOL, winStreak: 0, lossStreak: 0, loadout: { weapon: 'slipper', serve: false, op: false } }
+                    }
+                };
+                document.getElementById('action-log').innerHTML = '';
+                this.log('>>> Match Initialized: BO3');
+                this.updateUI();
+            },
+
+            resetGame() {
+                this.state.ot = false;
+                this.state.totalScore = 0;
+                this.state.players.A.score = 0;
+                this.state.players.B.score = 0;
+                this.state.players.A.winStreak = 0;
+                this.state.players.B.winStreak = 0;
+                this.state.players.A.lossStreak = 0;
+                this.state.players.B.lossStreak = 0;
+                // Keep credits, but reset to max if OT is active later (custom rule if needed).
+                // Usually Valorant keeps credits rolling.
+                this.log('>>> New Game Started');
+                this.state.phase = 'MATCH';
+                this.updateUI();
+            },
+
+            addPoint(winnerId) {
+                if (this.state.phase !== 'MATCH') return;
+
+                const loserId = winnerId === 'A' ? 'B' : 'A';
+                const pW = this.state.players[winnerId];
+                const pL = this.state.players[loserId];
+
+                // 1. Calculate Score (OP = 2 pts)
+                const pointsGained = pW.loadout.op ? 2 : 1;
+                pW.score += pointsGained;
+                this.state.totalScore += pointsGained;
+
+                this.log(`${pW.name} scored! (+${pointsGained} pt${pointsGained > 1 ? 's' : ''})`);
+
+                // 2. OP Drop Logic
+                if (pL.loadout.op) {
+                    pL.loadout.op = false;
+                    this.log(`⚠️ ${pL.name} lost their Operator!`);
+                }
+
+                // 3. Economy (Valorant style)
+                pW.winStreak++;
+                pW.lossStreak = 0;
+                let winReward = ECON.WIN;
+                if (pW.winStreak >= 4) winReward += ECON.WIN_TAX_4;
+                else if (pW.winStreak === 3) winReward += ECON.WIN_TAX_3;
+                pW.credits = Math.min(ECON.MAX, pW.credits + winReward);
+
+                pL.lossStreak++;
+                pL.winStreak = 0;
+                let lossBonus = Math.min(1000, pL.lossStreak * ECON.LOSS_BONUS);
+                pL.credits = Math.min(ECON.MAX, pL.credits + ECON.LOSS + lossBonus);
+
+                // 4. Overtime Check
+                if (pW.score >= 10 && pL.score >= 10 && !this.state.ot) {
+                    this.state.ot = true;
+                    this.log('🔥 OVERTIME INITIATED! Win by 2.');
+                    this.showAlert('OVERTIME', '10-10 デュースに突入しました！<br>2点差をつけるまで試合は継続します。');
+                }
+
+                // 5. Game Win Check
+                if (pW.score >= 11 && (pW.score - pL.score >= 2)) {
+                    pW.games++;
+                    this.log(`🏆 ${pW.name} WINS GAME!`);
+                    
+                    if (pW.games >= 2) {
+                        this.state.phase = 'END_MATCH';
+                        this.showAlert('MATCH OVER', `<h2>🏆 ${pW.name} がマッチに勝利しました！</h2><br><p>BO3を制しました。</p>`);
+                    } else {
+                        this.state.phase = 'END_GAME';
+                        this.showAlert('GAME SET', `${pW.name} がゲームを取りました！<br>次のゲームへ移行します。`);
+                    }
+                    this.updateUI();
+                    return; // Skip buy phase check if game ends
+                }
+
+                // 6. Buy Phase Check (Every 6 points, NOT in OT)
+                // Need to detect if we crossed a multiple of 6.
+                const prevTotal = this.state.totalScore - pointsGained;
+                const crossedMultipleOf6 = Math.floor(this.state.totalScore / 6) > Math.floor(prevTotal / 6);
                 
-                screen.classList.add('active');
-                if (isConfirm) btnCancel.classList.remove('hidden'); else btnCancel.classList.add('hidden');
+                if (crossedMultipleOf6 && !this.state.ot) {
+                    this.state.phase = 'BUY';
+                    this.initBuyPhase();
+                } else {
+                    this.updateUI();
+                }
+            },
 
-                const handleOk = () => { cleanup(); resolve(true); };
-                const handleCancel = () => { cleanup(); resolve(false); };
-                const cleanup = () => { btnOk.removeEventListener('click', handleOk); btnCancel.removeEventListener('click', handleCancel); screen.classList.remove('active'); };
-                btnOk.addEventListener('click', handleOk); btnCancel.addEventListener('click', handleCancel);
-            });
-        };
-
-        // Tabs Logic
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.screen:not(.overlay)').forEach(s => s.classList.remove('active'));
-                e.target.classList.add('active');
-                e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                document.getElementById(e.target.dataset.target).classList.add('active');
-            });
-        });
-
-        // ==========================================
-        // 1. DATA FETCHING & REGISTRATION
-        // ==========================================
-        const fetchParticipants = async () => {
-            try {
-                const q = query(collection(db, "participants"), orderBy("rank"));
-                const snap = await getDocs(q);
-                participants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            initBuyPhase() {
+                this.log('🛒 Buy Phase Started');
                 
-                const ul = document.getElementById('players-ul');
-                ul.innerHTML = "";
-                participants.forEach(p => {
-                    ul.innerHTML += `<li>Rank ${p.rank} : <strong>${p.name}</strong></li>`;
+                // Sell current loadouts for 50%
+                ['A', 'B'].forEach(id => {
+                    const p = this.state.players[id];
+                    let refund = 0;
+                    if (p.loadout.weapon === 'sub') refund += ECON.COST.sub * 0.5;
+                    if (p.loadout.weapon === 'main') refund += ECON.COST.main * 0.5;
+                    if (p.loadout.serve) refund += ECON.COST.serve * 0.5;
+                    if (p.loadout.op) refund += ECON.COST.op * 0.5;
+                    
+                    p.credits = Math.min(ECON.MAX, p.credits + Math.floor(refund));
+                    
+                    // Reset to default loadout
+                    p.loadout = { weapon: 'slipper', serve: false, op: false };
+                    
+                    // Setup temporary buy state
+                    this.buyState[id] = {
+                        credits: p.credits,
+                        weapon: 'slipper',
+                        serve: false,
+                        op: false
+                    };
+                });
+
+                this.renderBuyMenu();
+                document.getElementById('modal-buy').classList.remove('hidden');
+            },
+
+            toggleBuy(playerId, itemType, itemId) {
+                const bState = this.buyState[playerId];
+                const itemDef = SHOP_DATA.find(i => i.id === itemId);
+                
+                if (itemType === 'weapon') {
+                    if (bState.weapon === itemId) {
+                        // Deselect weapon -> refund
+                        bState.weapon = 'slipper';
+                        bState.credits += itemDef.cost;
+                    } else {
+                        // Refund current weapon if any
+                        if (bState.weapon !== 'slipper') {
+                            bState.credits += SHOP_DATA.find(i => i.id === bState.weapon).cost;
+                        }
+                        // Check if enough money
+                        if (bState.credits >= itemDef.cost) {
+                            bState.weapon = itemId;
+                            bState.credits -= itemDef.cost;
+                        }
+                    }
+                } else if (itemType === 'serve') {
+                    if (bState.serve) {
+                        bState.serve = false;
+                        bState.credits += itemDef.cost;
+                    } else if (bState.credits >= itemDef.cost) {
+                        bState.serve = true;
+                        bState.credits -= itemDef.cost;
+                    }
+                } else if (itemType === 'op') {
+                    if (bState.op) {
+                        bState.op = false;
+                        bState.credits += itemDef.cost;
+                    } else if (bState.credits >= itemDef.cost) {
+                        bState.op = true;
+                        bState.credits -= itemDef.cost;
+                    }
+                }
+                
+                this.renderBuyMenu();
+            },
+
+            confirmBuy() {
+                ['A', 'B'].forEach(id => {
+                    const p = this.state.players[id];
+                    const b = this.buyState[id];
+                    p.credits = b.credits;
+                    p.loadout.weapon = b.weapon;
+                    p.loadout.serve = b.serve;
+                    p.loadout.op = b.op;
                 });
                 
-                document.getElementById('player-count').innerText = participants.length;
-                const btnInitBracket = document.getElementById('btn-init-bracket');
-                if (participants.length === 6) {
-                    btnInitBracket.classList.remove('hidden');
-                } else {
-                    btnInitBracket.classList.add('hidden');
-                }
+                this.state.phase = 'MATCH';
+                document.getElementById('modal-buy').classList.add('hidden');
+                this.log('🛒 Buy Phase Completed');
+                this.updateUI();
+            },
+
+            updateUI() {
+                const st = this.state;
                 
-                await fetchMatches(); // 大会データも取得
-            } catch (error) {
-                console.error("データの取得に失敗:", error);
-            }
-        };
+                // Header
+                document.getElementById('match-status').innerText = `BO3 - GAME ${st.players.A.games + st.players.B.games + 1}${st.ot ? ' (OT)' : ''}`;
+                document.getElementById('total-points').innerText = st.totalScore;
+                
+                let nextBuy = Math.ceil((st.totalScore + 0.1) / 6) * 6;
+                document.getElementById('next-buy-info').innerText = st.ot ? 'NO BUY PHASE IN OT' : `Next Buy Phase at ${nextBuy} pts`;
 
-        const fetchMatches = async () => {
-            try {
-                const docRef = doc(db, "tournament", "bracket");
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    matches = docSnap.data();
-                    renderBracket();
-                }
-            } catch (error) {
-                console.error("ブラケット取得失敗:", error);
-            }
-        };
+                // Players
+                ['A', 'B'].forEach(id => {
+                    const p = st.players[id];
+                    const card = document.getElementById(`card-${id}`);
+                    
+                    document.getElementById(`name-${id}`).innerText = p.name;
+                    document.getElementById(`score-${id}`).innerText = p.score;
+                    document.getElementById(`credits-${id}`).innerText = p.credits;
 
-        document.getElementById('btn-register').addEventListener('click', async () => {
-            const nameInput = document.getElementById('reg-name').value;
-            const rankInput = parseInt(document.getElementById('reg-rank').value);
+                    // Win dots
+                    document.getElementById(`win-${id}-1`).style.backgroundColor = p.games >= 1 ? 'var(--vct-red)' : 'transparent';
+                    document.getElementById(`win-${id}-2`).style.backgroundColor = p.games >= 2 ? 'var(--vct-red)' : 'transparent';
 
-            if (!nameInput || isNaN(rankInput) || rankInput < 1 || rankInput > 6) {
-                await window.showMessage("エラー", "正しい選手名とランキング(1〜6)を入力してください。");
-                return;
-            }
-            if (participants.length >= 6) {
-                await window.showMessage("エラー", "すでに6名の選手がエントリーしています。");
-                return;
-            }
-            // ランキングの重複チェック
-            if (participants.some(p => p.rank === rankInput)) {
-                await window.showMessage("エラー", `ランキング ${rankInput} 位はすでに登録されています。`);
-                return;
-            }
+                    // Streak
+                    let streakText = '-';
+                    if (p.winStreak >= 4) streakText = `<span class="debuff-text font-bold">4連勝中 (税 -$1000)</span>`;
+                    else if (p.winStreak === 3) streakText = `<span class="debuff-text font-bold">3連勝中 (税 -$500)</span>`;
+                    else if (p.lossStreak > 0) streakText = `<span class="text-blue-400 font-bold">${p.lossStreak}連敗中 (ボーナス +$${Math.min(1000, p.lossStreak * 500)})</span>`;
+                    else if (p.winStreak > 0) streakText = `<span class="text-green-400 font-bold">${p.winStreak}連勝中</span>`;
+                    document.getElementById(`streak-${id}`).innerHTML = streakText;
 
-            try {
-                await addDoc(collection(db, "participants"), { name: nameInput, rank: rankInput });
-                document.getElementById('reg-name').value = ''; document.getElementById('reg-rank').value = '';
-                fetchParticipants();
-            } catch (error) {
-                console.error("登録エラー:", error);
-            }
-        });
+                    // Loadout
+                    let wName = 'スリッパ';
+                    if (p.loadout.weapon === 'sub') wName = 'サブラケット';
+                    if (p.loadout.weapon === 'main') wName = 'メインラケット';
+                    document.getElementById(`equip-weapon-${id}`).innerText = wName;
+                    document.getElementById(`equip-serve-${id}`).innerText = p.loadout.serve ? '自由' : '制限';
+                    
+                    const opEl = document.getElementById(`equip-op-${id}`);
+                    if (p.loadout.op) {
+                        opEl.classList.remove('hidden');
+                        opEl.classList.add('flex');
+                        card.classList.add('op-glow');
+                    } else {
+                        opEl.classList.add('hidden');
+                        opEl.classList.remove('flex');
+                        card.classList.remove('op-glow');
+                    }
+                });
+            },
 
-        document.getElementById('btn-reset-players').addEventListener('click', async () => {
-            if(await window.showMessage("確認", "全選手の登録を削除しますか？", true)) {
-                const snap = await getDocs(collection(db, "participants"));
-                snap.forEach(d => deleteDoc(d.ref));
-                await deleteDoc(doc(db, "tournament", "bracket"));
-                matches = {};
-                fetchParticipants();
-            }
-        });
+            renderBuyMenu() {
+                ['A', 'B'].forEach(id => {
+                    const bState = this.buyState[id];
+                    document.getElementById(`buy-credits-${id}`).innerText = bState.credits;
+                    
+                    const container = document.getElementById(`shop-items-${id}`);
+                    container.innerHTML = ''; // Clear
 
-        // ==========================================
-        // 2. BRACKET GENERATION
-        // ==========================================
-        document.getElementById('btn-init-bracket').addEventListener('click', async () => {
-            if (participants.length !== 6) return;
-            
-            // ランク順にソートして割り当て
-            participants.sort((a,b) => a.rank - b.rank);
-            const p = participants;
+                    SHOP_DATA.forEach(item => {
+                        let isOwned = false;
+                        if (item.type === 'weapon') isOwned = bState.weapon === item.id;
+                        if (item.type === 'serve') isOwned = bState.serve === true;
+                        if (item.type === 'op') isOwned = bState.op === true;
 
-            // 初期ブラケットデータ
-            matches = {
-                M1: { id: "M1", title: "Knockout 1", pA: p[2], pB: p[5], winner: null, loser: null, isDone: false, nextW: "M4", slotW: "pB" }, // 3位 vs 6位
-                M2: { id: "M2", title: "Knockout 2", pA: p[3], pB: p[4], winner: null, loser: null, isDone: false, nextW: "M3", slotW: "pB" }, // 4位 vs 5位
-                M3: { id: "M3", title: "Upper Semi 1", pA: p[0], pB: null, winner: null, loser: null, isDone: false, nextW: "M6", slotW: "pA", nextL: "M5", slotL: "pA" }, // 1位 vs M2勝者
-                M4: { id: "M4", title: "Upper Semi 2", pA: p[1], pB: null, winner: null, loser: null, isDone: false, nextW: "M6", slotW: "pB", nextL: "M5", slotL: "pB" }, // 2位 vs M1勝者
-                M5: { id: "M5", title: "Lower Semi", pA: null, pB: null, winner: null, loser: null, isDone: false, nextW: "M7", slotW: "pB" }, // M3敗者 vs M4敗者
-                M6: { id: "M6", title: "Upper Final", pA: null, pB: null, winner: null, loser: null, isDone: false, nextW: "M8", slotW: "pA", nextL: "M7", slotL: "pA" }, // M3勝者 vs M4勝者
-                M7: { id: "M7", title: "Lower Final", pA: null, pB: null, winner: null, loser: null, isDone: false, nextW: "M8", slotW: "pB" }, // M6敗者 vs M5勝者
-                M8: { id: "M8", title: "Grand Final", pA: null, pB: null, winner: null, loser: null, isDone: false } // M6勝者 vs M7勝者
-            };
-
-            await setDoc(doc(db, "tournament", "bracket"), matches);
-            await window.showMessage("成功", "トーナメント表を生成しました！予選・本戦タブを確認してください。");
-            renderBracket();
-            document.querySelector('[data-target="tab-knockouts"]').click();
-        });
-
-        // ブラケットHTML生成ヘルパー
-        const createMatchCard = (m) => {
-            if(!m) return '';
-            const nameA = m.pA ? m.pA.name : "TBD";
-            const nameB = m.pB ? m.pB.name : "TBD";
-            const canPlay = m.pA && m.pB && !m.isDone;
-            const btnHTML = canPlay ? `<button class="btn-play" onclick="window.setupMatch('${m.id}')">PLAY</button>` : '';
-            const doneClass = m.isDone ? "completed" : "";
-            
-            return `
-                <div class="match-card ${doneClass}">
-                    <div style="flex:1;">
-                        <span style="font-size:0.8rem; color:#888;">${m.id}: ${m.title}</span>
-                        <div class="match-player-row">
-                            <p class="${m.winner?.id === m.pA?.id ? 'winner' : ''}">${nameA}</p>
-                        </div>
-                        <div class="match-player-row">
-                            <p class="${m.winner?.id === m.pB?.id ? 'winner' : ''}">${nameB}</p>
-                        </div>
-                    </div>
-                    <div>${m.isDone ? '<span style="color:#888; font-weight:bold;">DONE</span>' : btnHTML}</div>
-                </div>
-            `;
-        };
-
-        const renderBracket = () => {
-            if (!matches || !matches.M1) return;
-            document.getElementById('knockouts-container').innerHTML = createMatchCard(matches.M1) + createMatchCard(matches.M2);
-            document.getElementById('upper-col1').innerHTML = createMatchCard(matches.M3) + createMatchCard(matches.M4);
-            document.getElementById('upper-col2').innerHTML = createMatchCard(matches.M6);
-            document.getElementById('lower-col1').innerHTML = createMatchCard(matches.M5);
-            document.getElementById('lower-col2').innerHTML = createMatchCard(matches.M7);
-            document.getElementById('grand-container').innerHTML = createMatchCard(matches.M8);
-        };
-
-        // ==========================================
-        // 3. MATCH PROGRESSION & LOGIC
-        // ==========================================
-        window.setupMatch = (matchId) => {
-            const m = matches[matchId];
-            if (!m || !m.pA || !m.pB) return;
-
-            matchState.id = matchId;
-            matchState.isOT = false;
-            matchState.roundCount = 0;
-            
-            matchState.players.A = { id: m.pA.id, name: m.pA.name, score: 0, gamesWon: 0, credits: ECON.PISTOL, lossStreak: 0, weapon: 0, serve: 0, hasOp: false };
-            matchState.players.B = { id: m.pB.id, name: m.pB.name, score: 0, gamesWon: 0, credits: ECON.PISTOL, lossStreak: 0, weapon: 0, serve: 0, hasOp: false };
-
-            document.getElementById('current-match-title').innerText = `${m.id} - ${m.title}`;
-            updateScoreboard();
-
-            document.getElementById('match-setup').classList.add('hidden');
-            document.getElementById('match-active').classList.remove('hidden');
-            document.getElementById('nav-match-btn').click();
-        };
-
-        window.abandonMatch = () => {
-            document.getElementById('match-setup').classList.remove('hidden');
-            document.getElementById('match-active').classList.add('hidden');
-        };
-
-        const updateScoreboard = () => {
-            const A = matchState.players.A;
-            const B = matchState.players.B;
-
-            document.getElementById('display-name-A').innerText = A.name;
-            document.getElementById('score-A').innerText = A.score;
-            document.getElementById('games-won-A').innerText = A.gamesWon;
-            document.getElementById('credits-A').innerText = A.credits;
-            document.getElementById('equip-weapon-A').innerText = A.weapon === 2900 ? "メインラケット" : (A.weapon === 1600 ? "サブラケット" : "スリッパ");
-            document.getElementById('equip-serve-A').innerText = A.serve === 1000 ? "サーブ自由" : "制限サーブ";
-            document.getElementById('op-A').classList.toggle('active', A.hasOp);
-
-            document.getElementById('display-name-B').innerText = B.name;
-            document.getElementById('score-B').innerText = B.score;
-            document.getElementById('games-won-B').innerText = B.gamesWon;
-            document.getElementById('credits-B').innerText = B.credits;
-            document.getElementById('equip-weapon-B').innerText = B.weapon === 2900 ? "メインラケット" : (B.weapon === 1600 ? "サブラケット" : "スリッパ");
-            document.getElementById('equip-serve-B').innerText = B.serve === 1000 ? "サーブ自由" : "制限サーブ";
-            document.getElementById('op-B').classList.toggle('active', B.hasOp);
-
-            document.getElementById('ot-banner').classList.toggle('hidden', !matchState.isOT);
-        };
-
-        // 得点追加ロジック
-        window.addPoint = (playerKey) => {
-            const p = matchState.players[playerKey];
-            const enemyKey = playerKey === 'A' ? 'B' : 'A';
-            const enemy = matchState.players[enemyKey];
-
-            // 1ポイント（OPなら2ポイント）
-            const pointGain = p.hasOp ? 2 : 1;
-            p.score += pointGain;
-            matchState.roundCount++;
-
-            // 資金処理
-            p.credits = Math.min(ECON.MAX, p.credits + ECON.WIN);
-            p.lossStreak = 0;
-            enemy.lossStreak++;
-            const bonus = Math.min(1000, enemy.lossStreak * ECON.LOSS_BONUS);
-            enemy.credits = Math.min(ECON.MAX, enemy.credits + ECON.LOSS + bonus);
-
-            // デュース判定 (10-10以上)
-            if (p.score >= 10 && enemy.score >= 10) {
-                matchState.isOT = true;
-            }
-
-            // 勝利判定
-            if (p.score >= 11 && (p.score - enemy.score) >= 2) {
-                handleGameWin(playerKey);
-            } else {
-                // 試合が続いていて、6ラウンド(ポイント)経過毎にBUYフェーズ
-                if (matchState.roundCount % 6 === 0 && !matchState.isOT) {
-                    showBuyScreen();
-                } else {
-                    updateScoreboard();
-                }
-            }
-        };
-
-        // ゲーム（マップ）決着
-        const handleGameWin = (winnerKey) => {
-            const winner = matchState.players[winnerKey];
-            const loser = matchState.players[winnerKey === 'A' ? 'B' : 'A'];
-            
-            winner.gamesWon++;
-            
-            document.getElementById('result-title').innerText = `GAME WINNER`;
-            document.getElementById('result-winner-name').innerText = winner.name;
-            document.getElementById('result-screen').classList.add('active');
-
-            // マッチ決着判定 (BO3)
-            if (winner.gamesWon === 2) {
-                document.getElementById('result-title').innerText = `MATCH WINNER !!`;
-                document.getElementById('btn-next-action').innerText = "結果を保存して戻る";
-                document.getElementById('btn-next-action').setAttribute('onclick', `window.finishMatch('${winnerKey}')`);
-            } else {
-                document.getElementById('btn-next-action').innerText = "次のゲームへ";
-                document.getElementById('btn-next-action').setAttribute('onclick', "window.nextGame()");
-            }
-            updateScoreboard();
-        };
-
-        window.nextGame = () => {
-            // ゲームリセット、資金維持(ただし最低1900担保)
-            matchState.players.A.score = 0; matchState.players.B.score = 0;
-            matchState.players.A.hasOp = false; matchState.players.B.hasOp = false;
-            matchState.roundCount = 0;
-            matchState.isOT = false;
-            document.getElementById('result-screen').classList.remove('active');
-            updateScoreboard();
-        };
-
-        // ==========================================
-        // 4. ECONOMY & BUY PHASE
-        // ==========================================
-        const showBuyScreen = () => {
-            const A = matchState.players.A;
-            const B = matchState.players.B;
-            
-            // 現在の装備価値を還元して計算
-            const totalFundsA = A.credits + A.weapon + A.serve + (A.hasOp ? 4700 : 0);
-            const totalFundsB = B.credits + B.weapon + B.serve + (B.hasOp ? 4700 : 0);
-
-            // リセット (購入画面で再構築)
-            A.credits = totalFundsA; A.weapon = 0; A.serve = 0; A.hasOp = false;
-            B.credits = totalFundsB; B.weapon = 0; B.serve = 0; B.hasOp = false;
-
-            document.getElementById('shop-name-A').innerText = A.name;
-            document.getElementById('shop-credits-A').innerText = A.credits;
-            document.getElementById('shop-name-B').innerText = B.name;
-            document.getElementById('shop-credits-B').innerText = B.credits;
-
-            // UIリセット
-            document.getElementById('shop-weapon-A').value = "0"; document.getElementById('shop-serve-A').checked = false; document.getElementById('shop-op-A').checked = false;
-            document.getElementById('shop-weapon-B').value = "0"; document.getElementById('shop-serve-B').checked = false; document.getElementById('shop-op-B').checked = false;
-
-            document.getElementById('buy-screen').classList.add('active');
-        };
-
-        window.confirmBuy = async () => {
-            const A = matchState.players.A;
-            const B = matchState.players.B;
-
-            const costA = parseInt(document.getElementById('shop-weapon-A').value) 
-                        + (document.getElementById('shop-serve-A').checked ? 1000 : 0)
-                        + (document.getElementById('shop-op-A').checked ? 4700 : 0);
+                        let canAfford = bState.credits >= item.cost || isOwned;
                         
-            const costB = parseInt(document.getElementById('shop-weapon-B').value) 
-                        + (document.getElementById('shop-serve-B').checked ? 1000 : 0)
-                        + (document.getElementById('shop-op-B').checked ? 4700 : 0);
+                        const btn = document.createElement('button');
+                        btn.className = `p-4 flex justify-between items-center text-left ${isOwned ? 'btn-vct-outline active' : (canAfford ? 'btn-vct-outline' : 'bg-[#1f2a3a] text-gray-600 cursor-not-allowed border border-transparent')}`;
+                        if(isOwned && item.type === 'op') btn.style.borderColor = 'var(--vct-gold)';
 
-            if (costA > A.credits || costB > B.credits) {
-                await window.showMessage("エラー", "資金が不足しています。装備を見直してください。");
-                return;
+                        btn.innerHTML = `
+                            <span class="font-bold">${item.name}</span>
+                            <span class="oswald">$${item.cost}</span>
+                        `;
+                        
+                        if (canAfford) {
+                            btn.onclick = () => this.toggleBuy(id, item.type, item.id);
+                        }
+                        
+                        container.appendChild(btn);
+                    });
+                });
+            },
+
+            log(msg) {
+                const logEl = document.getElementById('action-log');
+                const div = document.createElement('div');
+                div.innerHTML = `> ${msg}`;
+                logEl.appendChild(div);
+                logEl.scrollTop = logEl.scrollHeight;
+            },
+
+            showAlert(title, htmlContent) {
+                document.getElementById('alert-title').innerHTML = title;
+                document.getElementById('alert-message').innerHTML = htmlContent;
+                document.getElementById('modal-alert').classList.remove('hidden');
+            },
+
+            closeAlert() {
+                document.getElementById('modal-alert').classList.add('hidden');
+                if (this.state.phase === 'END_GAME') {
+                    this.resetGame();
+                } else if (this.state.phase === 'END_MATCH') {
+                    this.resetMatch();
+                }
             }
-
-            // 適用
-            A.credits -= costA;
-            A.weapon = parseInt(document.getElementById('shop-weapon-A').value);
-            A.serve = document.getElementById('shop-serve-A').checked ? 1000 : 0;
-            A.hasOp = document.getElementById('shop-op-A').checked;
-
-            B.credits -= costB;
-            B.weapon = parseInt(document.getElementById('shop-weapon-B').value);
-            B.serve = document.getElementById('shop-serve-B').checked ? 1000 : 0;
-            B.hasOp = document.getElementById('shop-op-B').checked;
-
-            document.getElementById('buy-screen').classList.remove('active');
-            updateScoreboard();
         };
 
-        // ==========================================
-        // 5. FINISH MATCH & UPDATE BRACKET
-        // ==========================================
-        window.finishMatch = async (winnerKey) => {
-            const m = matches[matchState.id];
-            const winnerData = matchState.players[winnerKey];
-            const loserData = matchState.players[winnerKey === 'A' ? 'B' : 'A'];
-
-            m.isDone = true;
-            m.winner = { id: winnerData.id, name: winnerData.name };
-            m.loser = { id: loserData.id, name: loserData.name };
-
-            // トーナメントツリーの進行
-            if (m.nextW && matches[m.nextW]) {
-                matches[m.nextW][m.slotW] = m.winner;
-            }
-            if (m.nextL && matches[m.nextL]) {
-                matches[m.nextL][m.slotL] = m.loser;
-            }
-
-            // Firestore更新
-            await setDoc(doc(db, "tournament", "bracket"), matches);
-            
-            document.getElementById('result-screen').classList.remove('active');
-            window.abandonMatch();
-            renderBracket();
-            document.querySelector('[data-target="tab-bracket"]').click(); // 本戦タブに戻る
-        };
-
-        // --- 初期ロード ---
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchParticipants();
+        // Bootstrap App
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
         });
+
     </script>
 </body>
 </html>
