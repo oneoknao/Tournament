@@ -243,6 +243,7 @@
             </div>
         </section>
 
+        <!-- Message Box Overlay -->
         <section id="msgbox-screen" class="screen overlay" style="z-index: 999;">
             <div class="buy-content" style="text-align:center; max-width: 400px; height: auto;">
                 <h2 id="msgbox-title" style="color:var(--vct-red); border:none; padding:0;">MESSAGE</h2>
@@ -259,12 +260,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-
-    <!-- Firebase SDK (v9) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // ⚠️ ご自身のFirebase Configに書き換えてください
         const firebaseConfig = {
@@ -304,6 +299,7 @@
             }
         };
 
+        // カスタムメッセージダイアログ
         window.showMessage = function(title, text, isConfirm = false) {
             return new Promise((resolve) => {
                 document.getElementById('msgbox-title').innerText = title;
@@ -494,7 +490,8 @@
             }
         }
 
-        window.addPoint = function(scorerKey) {
+        // 非同期(async)化し、ダイアログ表示完了を待つように修正
+        window.addPoint = async function(scorerKey) {
             const scorer = state.players[scorerKey];
             const opponentKey = scorerKey === 'A' ? 'B' : 'A';
             const opponent = state.players[opponentKey];
@@ -504,7 +501,8 @@
             if (scorer.hasOp) pts = 2;
             else if (opponent.hasOp) {
                 pts = 2; opponent.hasOp = false; scorer.hasOp = true;
-                showMessage("武器奪取", `⚠️ ${scorer.name} がオペレーターを奪取しました！`);
+                // OKボタンが押されるまで待機する
+                await showMessage("武器奪取", `⚠️ ${scorer.name} がオペレーターを奪取しました！`);
             }
 
             scorer.score += pts; scorer.roundPts += pts;
@@ -517,7 +515,7 @@
             }
             // Check OT
             if (state.players.A.score === 10 && state.players.B.score === 10 && !state.isOT) {
-                triggerOvertime(); return;
+                await triggerOvertime(); return;
             }
             // Check Buy Phase (every 6 points)
             if (!state.isOT && (state.players.A.score + state.players.B.score) % 6 === 0) {
@@ -580,7 +578,7 @@
             document.getElementById('buy-screen').classList.remove('active');
         };
 
-        function triggerOvertime() {
+        async function triggerOvertime() {
             state.isOT = true;
             document.getElementById('ot-banner').classList.remove('hidden');
             ['A', 'B'].forEach(key => {
@@ -590,7 +588,7 @@
                 state.players[key].hasOp = false;
             });
             updateUI();
-            showMessage("OVERTIME", "OVERTIME 突入！\n・マネーMAX フルバイ固定\n・1ポイント交代");
+            await showMessage("OVERTIME", "OVERTIME 突入！\n・マネーMAX フルバイ固定\n・1ポイント交代");
         }
 
         // --- Game / Match Resolution ---
