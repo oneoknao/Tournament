@@ -564,10 +564,6 @@
 
             let pts = 1;
             if (scorer.hasOp) pts = 2;
-            else if (opponent.hasOp) {
-                pts = 2; opponent.hasOp = false; scorer.hasOp = true;
-                await showMessage("武器奪取", `⚠️ ${scorer.name} がオペレーターを奪取しました！`);
-            }
 
             scorer.score += pts; scorer.roundPts += pts;
             updateUI();
