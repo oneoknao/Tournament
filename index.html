@@ -4,354 +4,456 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TABLE TENNIS CHAMPIONS TOUR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* =========================================
-           VCT Style CSS
-        ========================================= */
         :root {
             --vct-dark: #0f1923;
             --vct-red: #ff4655;
             --vct-light: #ece8e1;
-            --vct-gray: #768079;
+            --vct-gray: #8b978f;
         }
         body {
-            margin: 0; padding: 0; background-color: var(--vct-dark); color: var(--vct-light);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--vct-dark);
+            color: var(--vct-light);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            max-width: 600px;
+            margin-inline: auto;
+            overflow-x: hidden;
         }
-        header {
-            background-color: #111; padding: 20px; text-align: center; border-bottom: 3px solid var(--vct-red);
+        h1, h2, h3, .vct-font {
+            font-family: 'Teko', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        h1 { margin: 0; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; }
-        
+        .banner {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 4px solid var(--vct-red);
+        }
         /* Tabs */
-        .tabs { display: flex; justify-content: center; background-color: #1a252f; }
+        .tab-nav {
+            display: flex;
+            background: #1f2a33;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
         .tab-btn {
-            background: none; border: none; color: var(--vct-gray); padding: 15px 30px;
-            font-size: 1.1rem; cursor: pointer; transition: all 0.3s; font-weight: bold;
+            background: none;
+            color: var(--vct-gray);
+            border: none;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Teko', sans-serif;
         }
-        .tab-btn:hover { color: var(--vct-light); }
-        .tab-btn.active { color: var(--vct-light); border-bottom: 4px solid var(--vct-red); }
-        
-        .tab-content { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .tab-content.active { display: block; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Match / Economy UI */
-        .match-container { display: flex; gap: 20px; justify-content: space-between; }
-        .player-card {
-            background-color: #1a252f; border: 1px solid var(--vct-gray); padding: 20px; width: 45%;
-            position: relative; overflow: hidden;
+        .tab-btn.active {
+            color: var(--vct-red);
+            border-bottom: 3px solid var(--vct-red);
         }
-        .player-card.penalty { border-color: var(--vct-red); box-shadow: 0 0 15px rgba(255, 70, 85, 0.5); }
-        .penalty-warning {
-            display: none; background-color: var(--vct-red); color: white; text-align: center;
-            font-weight: bold; padding: 5px; margin-bottom: 10px;
+        .tab-content {
+            display: none;
+            padding: 15px;
         }
-        .player-card.penalty .penalty-warning { display: block; }
-        
-        .score-board { text-align: center; font-size: 4rem; font-weight: bold; margin: 20px 0; }
-        .money { font-size: 2rem; color: #55ff55; text-align: center; margin-bottom: 20px; }
-        
-        /* BO3 Indicators */
-        .bo3-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
-        .dot { width: 15px; height: 15px; border-radius: 50%; background-color: var(--vct-gray); }
-        .dot.won { background-color: var(--vct-red); }
-
-        /* Controls & Shop */
+        .tab-content.active {
+            display: block;
+        }
+        /* Buttons & Inputs */
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #1f2a33;
+            border: 1px solid var(--vct-gray);
+            color: white;
+        }
         .btn {
-            background-color: var(--vct-red); color: white; border: none; padding: 10px 20px;
-            font-size: 1rem; cursor: pointer; text-transform: uppercase; font-weight: bold; width: 100%;
-            margin-bottom: 10px; transition: 0.2s;
+            background-color: var(--vct-red);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+            transition: 0.2s;
         }
-        .btn:hover { background-color: #d43d4a; }
-        .btn-score { font-size: 1.5rem; padding: 15px; background-color: var(--vct-light); color: var(--vct-dark); }
-        .btn-score:hover { background-color: #ccc; }
-
-        .shop { margin-top: 20px; border-top: 1px solid var(--vct-gray); padding-top: 10px; }
-        .shop-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .shop-item button { width: auto; padding: 5px 10px; font-size: 0.9rem; margin: 0; }
-        
-        .inventory { margin-top: 10px; font-size: 0.9rem; color: var(--vct-gray); }
-
-        /* System Messages */
-        #sys-message { text-align: center; color: #55ff55; font-size: 1.2rem; margin: 10px 0; height: 30px;}
-
-        /* Bracket Styles (Simplified) */
-        .bracket-stage { margin-bottom: 40px; }
-        .bracket-title { color: var(--vct-red); border-bottom: 1px solid var(--vct-red); padding-bottom: 5px;}
-        .matchup { background: #1a252f; padding: 10px; margin: 10px 0; border-left: 4px solid var(--vct-red); width: 300px; }
+        .btn:active { background-color: #d43d4a; }
+        .btn:disabled { background-color: #555; color: #888; cursor: not-allowed; }
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--vct-red);
+            color: var(--vct-red);
+        }
+        /* Player List */
+        .player-list { list-style: none; padding: 0; }
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            background: #1f2a33;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-left: 4px solid var(--vct-red);
+        }
+        .delete-btn { color: var(--vct-red); cursor: pointer; font-weight: bold; }
+        /* Match UI */
+        .match-board { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .player-side { text-align: center; width: 48%; background: #1f2a33; padding: 15px 0; position: relative; }
+        .score { font-size: 60px; font-weight: bold; font-family: 'Teko', sans-serif; color: var(--vct-red); }
+        .money { font-size: 24px; color: #00ff66; font-family: 'Teko', sans-serif;}
+        .debuff-alert { color: var(--vct-red); font-size: 12px; font-weight: bold; display: none; }
+        .action-row { display: flex; gap: 10px; }
+        .action-row .btn { width: 50%; }
+        /* Buy Menu Overlay */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 25, 35, 0.95); z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-content { background: #1f2a33; padding: 20px; width: 90%; max-width: 400px; border: 1px solid var(--vct-red); }
+        .shop-item { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px;}
+        /* Formatting */
+        .rules-box h3 { color: var(--vct-red); border-bottom: 1px solid #444; padding-bottom: 5px; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>TABLE TENNIS CHAMPIONS TOUR</h1>
-</header>
+    <!-- Banner -->
+    <img src="Table_Tennis_Summer_Bannar.png" alt="VCT Table Tennis Summer Banner" class="banner" onerror="this.style.display='none';">
 
-<div class="tabs">
-    <button class="tab-btn" onclick="switchTab('bracket')">BRACKET</button>
-    <button class="tab-btn active" onclick="switchTab('match')">MATCH / ECONOMY</button>
-    <button class="tab-btn" onclick="switchTab('rules')">RULES</button>
-</div>
+    <!-- Tabs -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-entry')">ENTRY</button>
+        <button class="tab-btn" onclick="switchTab('tab-qualifier')">KNOCKOUT</button>
+        <button class="tab-btn" onclick="switchTab('tab-main')">PLAYOFF</button>
+        <button class="tab-btn" onclick="switchTab('tab-match')">MATCH UI</button>
+        <button class="tab-btn" onclick="switchTab('tab-rules')">RULES</button>
+    </div>
 
-<div id="match" class="tab-content active">
-    <div id="sys-message">第1ゲーム開始: 初期資金 $800</div>
-    <div class="match-container">
+    <!-- TAB 1: ENTRY -->
+    <div id="tab-entry" class="tab-content active">
+        <h2 class="vct-font">PLAYER REGISTRATION</h2>
+        <input type="text" id="playerName" placeholder="選手名 (Player Name)">
+        <input type="number" id="playerRank" placeholder="ランキング (Rank 1-6)" min="1" max="6">
+        <button class="btn" id="addPlayerBtn">登録 (REGISTER)</button>
         
-        <div class="player-card" id="p1-card">
-            <div class="penalty-warning">⚠️ リードペナルティ: スリッパ強制</div>
-            <h2 style="text-align:center;">PLAYER 1</h2>
-            <div class="bo3-dots" id="p1-games">
-                <div class="dot"></div><div class="dot"></div>
+        <ul class="player-list" id="playerListUI">
+            <!-- プレイヤー一覧がここに入る -->
+        </ul>
+        
+        <button class="btn" id="createTourneyBtn" disabled>トーナメント作成 (CREATE BRACKET)</button>
+        <div class="action-row">
+            <button class="btn btn-outline" id="resetPlayersBtn">選手リセット</button>
+        </div>
+    </div>
+
+    <!-- TAB 2: KNOCKOUT STAGE -->
+    <div id="tab-qualifier" class="tab-content">
+        <h2 class="vct-font">KNOCKOUT STAGE (予選)</h2>
+        <p>ランキング3〜6位のサバイバルマッチ。下位選手はコート・サーブ権を獲得。</p>
+        <div style="background: #1f2a33; padding: 10px; margin-bottom: 10px; border-left: 4px solid var(--vct-red);">
+            <h3 class="vct-font">MATCH 1</h3>
+            <p id="q-match1">Rank 4 vs Rank 5</p>
+        </div>
+        <div style="background: #1f2a33; padding: 10px; margin-bottom: 10px; border-left: 4px solid var(--vct-red);">
+            <h3 class="vct-font">MATCH 2</h3>
+            <p id="q-match2">Rank 3 vs Rank 6</p>
+        </div>
+    </div>
+
+    <!-- TAB 3: PLAYOFF BRACKET -->
+    <div id="tab-main" class="tab-content">
+        <h2 class="vct-font">PLAYOFF BRACKET (本戦)</h2>
+        <p>ダブルエリミネーション方式。シード1,2位 ＋ 予選勝者2名。</p>
+        <div style="border: 1px solid var(--vct-gray); padding: 10px; margin-bottom: 10px;">
+            <h3 class="vct-font" style="color: var(--vct-red);">UPPER BRACKET</h3>
+            <p>SF1: Rank 1 vs [Knockout M1 勝者]</p>
+            <p>SF2: Rank 2 vs [Knockout M2 勝者]</p>
+            <p>Upper Final: [SF1 勝者] vs [SF2 勝者]</p>
+        </div>
+        <div style="border: 1px solid var(--vct-gray); padding: 10px;">
+            <h3 class="vct-font" style="color: var(--vct-red);">LOWER BRACKET</h3>
+            <p>Lower Round 1: [SF1 敗者] vs [SF2 敗者]</p>
+            <p>Lower Final (BO5): [Upper Final 敗者] vs [L1 勝者]</p>
+        </div>
+        <div style="background: var(--vct-red); padding: 10px; margin-top: 10px; text-align: center; font-weight: bold;">
+            GRAND FINAL (BO5): [Upper 勝者] vs [Lower 勝者]
+        </div>
+    </div>
+
+    <!-- TAB 4: MATCH UI -->
+    <div id="tab-match" class="tab-content">
+        <h2 class="vct-font">LIVE MATCH</h2>
+        
+        <div class="match-board">
+            <div class="player-side" id="p1-side">
+                <div class="debuff-alert" id="p1-debuff">⚠️ リードペナルティ (スリッパ強制)</div>
+                <h3>PLAYER 1</h3>
+                <div class="score" id="p1-score">0</div>
+                <div class="money" id="p1-money">$0</div>
+                <div style="font-size: 10px; color: var(--vct-gray);" id="p1-equip">装備: スリッパ</div>
             </div>
-            <div class="score-board" id="p1-score">0</div>
-            <button class="btn btn-score" onclick="addScore(1)">+ SCORE</button>
-            <div class="money" id="p1-money">$&nbsp;800</div>
-            
-            <div class="inventory">装備: <span id="p1-inv">スリッパ</span></div>
-            
-            <div class="shop">
-                <h3>BUY PHASE (SHOP)</h3>
-                <div class="shop-item"><span>サブラケット ($1,600)</span> <button class="btn" onclick="buyItem(1, 'sub', 1600)">BUY</button></div>
-                <div class="shop-item"><span>メインラケット ($2,900)</span> <button class="btn" onclick="buyItem(1, 'main', 2900)">BUY</button></div>
-                <div class="shop-item"><span>サーブ自由 ($1,000)</span> <button class="btn" onclick="buyItem(1, 'serve', 1000)">BUY</button></div>
-                <div class="shop-item"><span>オペレーター ($4,700)</span> <button class="btn" onclick="buyItem(1, 'op', 4700)">BUY</button></div>
+            <div class="player-side" id="p2-side">
+                <div class="debuff-alert" id="p2-debuff">⚠️ リードペナルティ (スリッパ強制)</div>
+                <h3>PLAYER 2</h3>
+                <div class="score" id="p2-score">0</div>
+                <div class="money" id="p2-money">$0</div>
+                <div style="font-size: 10px; color: var(--vct-gray);" id="p2-equip">装備: スリッパ</div>
             </div>
         </div>
 
-        <div class="player-card" id="p2-card">
-            <div class="penalty-warning">⚠️ リードペナルティ: スリッパ強制</div>
-            <h2 style="text-align:center;">PLAYER 2</h2>
-            <div class="bo3-dots" id="p2-games">
-                <div class="dot"></div><div class="dot"></div>
-            </div>
-            <div class="score-board" id="p2-score">0</div>
-            <button class="btn btn-score" onclick="addScore(2)">+ SCORE</button>
-            <div class="money" id="p2-money">$&nbsp;800</div>
-            
-            <div class="inventory">装備: <span id="p2-inv">スリッパ</span></div>
-            
-            <div class="shop">
-                <h3>BUY PHASE (SHOP)</h3>
-                <div class="shop-item"><span>サブラケット ($1,600)</span> <button class="btn" onclick="buyItem(2, 'sub', 1600)">BUY</button></div>
-                <div class="shop-item"><span>メインラケット ($2,900)</span> <button class="btn" onclick="buyItem(2, 'main', 2900)">BUY</button></div>
-                <div class="shop-item"><span>サーブ自由 ($1,000)</span> <button class="btn" onclick="buyItem(2, 'serve', 1000)">BUY</button></div>
-                <div class="shop-item"><span>オペレーター ($4,700)</span> <button class="btn" onclick="buyItem(2, 'op', 4700)">BUY</button></div>
-            </div>
+        <div class="action-row">
+            <button class="btn" onclick="addPoint(1)">+1 P1</button>
+            <button class="btn" onclick="addPoint(2)">+1 P2</button>
+        </div>
+        <div class="action-row" style="margin-top: 10px;">
+            <button class="btn btn-outline" onclick="undoPoint()">修正 (UNDO)</button>
+            <button class="btn btn-outline" onclick="openBuyMenu()">BUY MENU (手動)</button>
         </div>
     </div>
-</div>
 
-<div id="bracket" class="tab-content">
-    <p>※Firestore接続後にデータから自動生成・アニメーション描画されます。</p>
-    <div class="bracket-stage">
-        <h2 class="bracket-title">KNOCKOUT STAGE (予選)</h2>
-        <div class="matchup">Rank 3 vs Rank 6</div>
-        <div class="matchup">Rank 4 vs Rank 5</div>
-    </div>
-    <div class="bracket-stage">
-        <h2 class="bracket-title">PLAYOFF BRACKET (本戦)</h2>
-        <div class="matchup">Seed 1 vs Knockout Winner A</div>
-        <div class="matchup">Seed 2 vs Knockout Winner B</div>
-        <h2 class="bracket-title" style="margin-top: 20px;">LOWER BRACKET</h2>
-        <div class="matchup">Loser Match A vs Loser Match B</div>
-    </div>
-</div>
-
-<div id="rules" class="tab-content">
-    <h2>🏆 PRIZE</h2>
-    <ul>
-        <li>1位: 2位以下から10勝ずつ</li>
-        <li>2位: 3位以下から10勝ずつ</li>
-        <li>5-6位: “先輩”からジュース1本</li>
-    </ul>
-    </div>
-
-<script>
-    /* =========================================
-       Firebase Firestore Setup (Mock/Placeholder)
-       実際の運用時はここにFirebaseのSDKを追加します
-    ========================================= */
-    // import { initializeApp } from "firebase/app";
-    // import { getFirestore, collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
-    // const firebaseConfig = { /* Your Config */ };
-    // const app = initializeApp(firebaseConfig);
-    // const db = getFirestore(app);
-
-    /* =========================================
-       Game Logic & State Management
-    ========================================= */
-    let players = {
-        1: { score: 0, games: 0, money: 800, lossStreak: 0, items: [], hasOp: false, penalty: false },
-        2: { score: 0, games: 0, money: 800, lossStreak: 0, items: [], hasOp: false, penalty: false }
-    };
-    
-    let totalPoints = 0;
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
-    }
-
-    function showMessage(msg) {
-        document.getElementById('sys-message').innerText = msg;
-    }
-
-    function addScore(pid) {
-        let p = players[pid];
-        let opponentPid = pid === 1 ? 2 : 1;
-        let op = players[opponentPid];
-
-        // ペナルティでなければOP(オペレーター)の効果適用
-        let pointsEarned = (p.hasOp && !p.penalty) ? 2 : 1;
-        p.score += pointsEarned;
-        totalPoints = p.score + op.score;
-
-        // エコノミー処理 (ポイント毎の資金加算)
-        processEconomy(pid, opponentPid);
-
-        // リードペナルティ判定
-        checkPenalty();
-
-        // 勝利判定
-        checkWin(pid, opponentPid);
-
-        // BUY PAUSE 判定
-        if (totalPoints >= 3 && totalPoints % 6 === 0) {
-            showMessage("BUY PAUSE: ショップでの購入が可能です！");
-        }
-
-        updateUI();
-    }
-
-    function processEconomy(winnerId, loserId) {
-        let winner = players[winnerId];
-        let loser = players[loserId];
-
-        // 勝利報酬
-        winner.money += 3000;
-        winner.lossStreak = 0; // 連敗リセット
-
-        // 敗北報酬 + 連敗ボーナス
-        loser.lossStreak += 1;
-        let streakBonus = Math.min((loser.lossStreak - 1) * 500, 1000);
-        loser.money += 1900 + streakBonus;
-
-        // 所持金上限チェック
-        winner.money = Math.min(winner.money, 9000);
-        loser.money = Math.min(loser.money, 9000);
-    }
-
-    function checkPenalty() {
-        let diff1 = players[1].score - players[2].score;
-        let diff2 = players[2].score - players[1].score;
-
-        players[1].penalty = diff1 >= 3;
-        players[2].penalty = diff2 >= 3;
-    }
-
-    function checkWin(pid, opponentPid) {
-        let p = players[pid];
-        let op = players[opponentPid];
-
-        // デュース(OT)突入チェック
-        if (p.score === 10 && op.score === 10) {
-            showMessage("OVERTIME (デュース): 資金が $5,000 にリセットされます");
-            p.money = 5000; op.money = 5000;
-            return;
-        }
-
-        // 11点以上かつ2点差でゲーム勝利
-        if (p.score >= 11 && (p.score - op.score) >= 2) {
-            p.games += 1;
-            if (p.games === 2) {
-                alert(`PLAYER ${pid} の勝利！(MATCH WINNER)`);
-                // Firestoreに結果を送信する処理をここに記述
-                resetMatch();
-            } else {
-                alert(`PLAYER ${pid} がゲームを取得！ 次のゲームへ`);
-                resetGame();
-            }
-        }
-    }
-
-    function buyItem(pid, item, cost) {
-        let p = players[pid];
-
-        // スリッパラウンド（0〜2点）の購入制限
-        if (totalPoints <= 2) {
-            showMessage("スリッパラウンド中は購入できません！");
-            return;
-        }
-
-        if (p.money >= cost) {
-            p.money -= cost;
-            if (item === 'op') p.hasOp = true;
-            p.items.push(item);
-            updateUI();
-        } else {
-            showMessage("資金が足りません！");
-        }
-    }
-
-    function resetGame() {
-        players[1].score = 0; players[2].score = 0;
-        totalPoints = 0;
+    <!-- TAB 5: RULES -->
+    <div id="tab-rules" class="tab-content rules-box">
+        <h2 class="vct-font">FORMAT & RULES</h2>
+        <h3>🏆 大会フォーマット</h3>
+        <p><b>予選 (KNOCKOUT STAGE):</b> ランキング 3位〜6位。勝者2名が本戦へ。</p>
+        <p><b>本戦 (PLAYOFF BRACKET):</b> シード1・2位 ＋ 予選勝者2名。ダブルエリミネーション方式。</p>
         
-        // 第2、第3ゲームの最低資金担保 ($1,900)
-        players[1].money = Math.max(players[1].money, 1900);
-        players[2].money = Math.max(players[2].money, 1900);
-        
-        players[1].items = []; players[2].items = [];
-        players[1].hasOp = false; players[2].hasOp = false;
-        checkPenalty();
-        updateUI();
-    }
+        <h3>🔫 試合ルール & エコノミー</h3>
+        <ul>
+            <li>BO3形式 (Lower/Grand FinalはBO5)。11点マッチ。</li>
+            <li>第1ゲーム開始時 資金$0 (ゲーム毎にリセット)。上限 $9,000。</li>
+            <li>勝利: +$500 / 敗北: +$300 / 連敗ボーナス: +$200ずつ加算(最大+$1000)。</li>
+            <li><b>スリッパラウンド:</b> ゲーム全体0〜2点目(BUY PAUSEなし)。</li>
+            <li><b>通常ラウンド:</b> 3点目以降。6点ごとにBUY PAUSE発生。</li>
+            <li><b>OT (デュース):</b> 10-10でクレジットリセット。「メイン+サーブ自由」か「メイン+OP(得点2倍)」を選択。</li>
+        </ul>
 
-    function resetMatch() {
-        players = {
-            1: { score: 0, games: 0, money: 800, lossStreak: 0, items: [], hasOp: false, penalty: false },
-            2: { score: 0, games: 0, money: 800, lossStreak: 0, items: [], hasOp: false, penalty: false }
+        <h3>🚨 リードペナルティ (Debuff)</h3>
+        <p>相手に <b>3点以上のリード</b> を奪っている選手に自動適用。強制的に「スリッパ」状態になり、OP(得点2倍)も無効化される。2点差以内に縮まるまで継続。</p>
+
+        <h3>🛒 ショップ (BUY MENU)</h3>
+        <ul>
+            <li>スリッパ: $0</li>
+            <li>サブラケット: $1,600</li>
+            <li>メインラケット: $2,900</li>
+            <li>サーブ自由: $1,000 (買わない場合は制限サーブ)</li>
+            <li>オペレーター: $4,700 (取得ポイント2倍)</li>
+        </ul>
+    </div>
+
+    <!-- BUY MENU MODAL -->
+    <div id="buyModal" class="modal">
+        <div class="modal-content">
+            <h2 class="vct-font" style="text-align: center; color: var(--vct-red);">BUY PHASE</h2>
+            <div id="shop-ui">
+                <!-- UI for buying items will be dynamically generated here if expanded, currently placeholder text -->
+                <p style="text-align: center; color: var(--vct-gray);">※本実装では各自画面を見て装備を宣言してください。</p>
+                <div class="shop-item"><span>スリッパ</span><span>$0</span></div>
+                <div class="shop-item"><span>サブラケット</span><span>$1,600</span></div>
+                <div class="shop-item"><span>メインラケット</span><span>$2,900</span></div>
+                <div class="shop-item"><span>サーブ自由</span><span>$1,000</span></div>
+                <div class="shop-item"><span>オペレーター(2倍)</span><span>$4,700</span></div>
+            </div>
+            <button class="btn" style="margin-top: 15px;" onclick="closeBuyMenu()">CLOSE (FIGHT)</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular v10) & Logic -->
+    <script type="module">
+        // -------------------------------------------------------------
+        // ▼ Firebase設定 (ご自身のプロジェクトのConfigに書き換えてください)
+        // -------------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVXoiovn7IHTZFYo9-_ueuCWniN9BNwO8",
+            authDomain: "keirin-table-tennis-tour.firebaseapp.com",
+            projectId: "keirin-table-tennis-tour",
+            storageBucket: "keirin-table-tennis-tour.firebasestorage.app",
+            messagingSenderId: "26380855770",
+            appId: "1:26380855770:web:fa243fd95d8afcdcea38e3",
+            measurementId: "G-EDPVXY3NYW"
         };
-        totalPoints = 0;
-        updateUI();
-    }
 
-    function updateUI() {
-        [1, 2].forEach(id => {
-            let p = players[id];
-            
-            // Score & Money
-            document.getElementById(`p${id}-score`).innerText = p.score;
-            document.getElementById(`p${id}-money`).innerText = `$ ${p.money}`;
-            
-            // Inventory Text
-            let invText = p.items.length > 0 ? p.items.join(', ') : 'スリッパ';
-            if (p.penalty) invText = '【スリッパ強制】 OP無効化中';
-            document.getElementById(`p${id}-inv`).innerText = invText;
+        // Firebaseを使用しない（ローカルテスト）場合は、以下のinitializeAppをコメントアウトし、
+        // ローカル配列で代用するようロジックを修正してください。
+        // 今回はFirebase連携を前提としたコードにしています。
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) {
+            console.warn("Firebase config is missing or invalid. Set it up to use Firestore.");
+        }
 
-            // Penalty Warning & Card Style
-            let card = document.getElementById(`p${id}-card`);
-            if (p.penalty) {
-                card.classList.add('penalty');
-            } else {
-                card.classList.remove('penalty');
+        // ==========================================
+        // TAB LOGIC
+        // ==========================================
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // ==========================================
+        // FIRESTORE: PLAYER ENTRY LOGIC
+        // ==========================================
+        const playerListUI = document.getElementById('playerListUI');
+        const createTourneyBtn = document.getElementById('createTourneyBtn');
+        let playersData = [];
+
+        // リスナ登録
+        if (db) {
+            const q = query(collection(db, "players"), orderBy("rank", "asc"));
+            onSnapshot(q, (snapshot) => {
+                playerListUI.innerHTML = '';
+                playersData = [];
+                snapshot.forEach((document) => {
+                    const data = document.data();
+                    playersData.push({ id: document.id, ...data });
+                    
+                    const li = document.createElement('li');
+                    li.className = 'player-item';
+                    li.innerHTML = `<span>Rank ${data.rank}: ${data.name}</span> <span class="delete-btn" onclick="deletePlayer('${document.id}')">✖</span>`;
+                    playerListUI.appendChild(li);
+                });
+
+                if (playersData.length === 6) {
+                    createTourneyBtn.disabled = false;
+                } else {
+                    createTourneyBtn.disabled = true;
+                }
+            });
+        }
+
+        document.getElementById('addPlayerBtn').addEventListener('click', async () => {
+            const name = document.getElementById('playerName').value;
+            const rank = parseInt(document.getElementById('playerRank').value);
+            if (!name || !rank) return alert('名前とランキングを入力してください。');
+            if (playersData.length >= 6) return alert('登録は6名までです。');
+            
+            if (db) {
+                await addDoc(collection(db, "players"), { name, rank });
             }
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerRank').value = '';
+        });
 
-            // BO3 Dots
-            let dots = document.getElementById(`p${id}-games`).children;
-            for (let i = 0; i < 2; i++) {
-                if (i < p.games) dots[i].classList.add('won');
-                else dots[i].classList.remove('won');
+        window.deletePlayer = async function(id) {
+            if (db && confirm('削除しますか？')) {
+                await deleteDoc(doc(db, "players", id));
+            }
+        }
+
+        document.getElementById('resetPlayersBtn').addEventListener('click', async () => {
+            if (db && confirm('全プレイヤーをリセットしますか？')) {
+                const querySnapshot = await getDocs(collection(db, "players"));
+                querySnapshot.forEach(async (document) => {
+                    await deleteDoc(doc(db, "players", document.id));
+                });
             }
         });
-    }
 
-    // Initialize UI
-    updateUI();
-</script>
+        createTourneyBtn.addEventListener('click', () => {
+            alert('トーナメントを作成しました！（KNOCKOUT, PLAYOFFタブを確認してください）');
+            // 実際の運用ではここで、Firestoreの "matches" コレクションにトーナメント表データを生成する処理を記述します。
+            
+            // UIへの反映（簡易版）
+            const p3 = playersData.find(p => p.rank === 3)?.name || 'Rank 3';
+            const p4 = playersData.find(p => p.rank === 4)?.name || 'Rank 4';
+            const p5 = playersData.find(p => p.rank === 5)?.name || 'Rank 5';
+            const p6 = playersData.find(p => p.rank === 6)?.name || 'Rank 6';
+            
+            document.getElementById('q-match1').innerHTML = `<b>${p4}</b> vs <b>${p5}</b> <br><small>(${p5}がコート・サーブ権選択)</small>`;
+            document.getElementById('q-match2').innerHTML = `<b>${p3}</b> vs <b>${p6}</b> <br><small>(${p6}がコート・サーブ権選択)</small>`;
+            
+            switchTab('tab-qualifier');
+        });
 
+        // ==========================================
+        // MATCH & ECONOMY LOGIC
+        // ==========================================
+        let matchState = {
+            history: [], // For undo
+            p1: { score: 0, money: 0, lossStreak: 0 },
+            p2: { score: 0, money: 0, lossStreak: 0 }
+        };
+
+        function saveStateForUndo() {
+            matchState.history.push(JSON.parse(JSON.stringify({p1: matchState.p1, p2: matchState.p2})));
+        }
+
+        window.addPoint = function(winnerId) {
+            saveStateForUndo();
+            const winner = winnerId === 1 ? matchState.p1 : matchState.p2;
+            const loser = winnerId === 1 ? matchState.p2 : matchState.p1;
+            
+            // Score Update
+            winner.score++;
+
+            // Economy Logic
+            // 1. スリッパラウンド (合計0, 1, 2点) は終了時にボーナスが入るがバイフェーズは起きない
+            winner.money = Math.min(9000, winner.money + 500);
+            winner.lossStreak = 0;
+
+            loser.lossStreak++;
+            let lossBonus = Math.min(1000, (loser.lossStreak - 1) * 200);
+            loser.money = Math.min(9000, loser.money + 300 + lossBonus);
+
+            updateMatchUI();
+            checkRules();
+        }
+
+        window.undoPoint = function() {
+            if (matchState.history.length === 0) return alert('これ以上戻せません');
+            const prevState = matchState.history.pop();
+            matchState.p1 = prevState.p1;
+            matchState.p2 = prevState.p2;
+            updateMatchUI();
+        }
+
+        function updateMatchUI() {
+            document.getElementById('p1-score').innerText = matchState.p1.score;
+            document.getElementById('p2-score').innerText = matchState.p2.score;
+            document.getElementById('p1-money').innerText = `$${matchState.p1.money}`;
+            document.getElementById('p2-money').innerText = `$${matchState.p2.money}`;
+
+            // Debuff Check (リードペナルティ: 3点差)
+            const diff = matchState.p1.score - matchState.p2.score;
+            document.getElementById('p1-debuff').style.display = (diff >= 3) ? 'block' : 'none';
+            document.getElementById('p2-debuff').style.display = (diff <= -3) ? 'block' : 'none';
+        }
+
+        function checkRules() {
+            const totalPoints = matchState.p1.score + matchState.p2.score;
+            
+            // BUY PAUSE Check (3点目以降、6点ごと)
+            if (totalPoints >= 3 && totalPoints % 6 === 0) {
+                setTimeout(() => openBuyMenu(), 500); // 演出のタメ
+            }
+
+            // OT Check
+            if (matchState.p1.score === 10 && matchState.p2.score === 10) {
+                alert('OVERTIME (DEUCE)! クレジットがリセットされます。\n「メイン+サーブ自由」または「メイン+OP」を選択してください。');
+                matchState.p1.money = 0;
+                matchState.p2.money = 0;
+                updateMatchUI();
+            }
+        }
+
+        window.openBuyMenu = function() {
+            document.getElementById('buyModal').style.display = 'flex';
+        }
+        window.closeBuyMenu = function() {
+            document.getElementById('buyModal').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
