@@ -33,8 +33,18 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
         
-        .tabs { display: flex; background: var(--vct-gray); margin-bottom: 30px; border-bottom: 2px solid #333; flex-wrap: wrap; }
-        .tab-btn { flex: 1; background: transparent; border: none; padding: 15px 5px; color: #888; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border-bottom: 4px solid transparent; min-width: 80px; }
+        /* Tab Navigation (Responsive Scroll) */
+        .tabs { 
+            display: flex; background: var(--vct-gray); margin-bottom: 30px; border-bottom: 2px solid #333; 
+            overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
+        }
+        .tabs::-webkit-scrollbar { height: 4px; }
+        .tabs::-webkit-scrollbar-thumb { background: var(--vct-red); }
+        .tab-btn { 
+            flex: 0 0 auto; background: transparent; border: none; padding: 15px 20px; color: #888; 
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; 
+            border-bottom: 4px solid transparent; 
+        }
         .tab-btn.active { color: var(--vct-light); border-bottom: 4px solid var(--vct-red); }
 
         /* Forms & Buttons */
@@ -66,19 +76,6 @@
         .match-player-score { font-size: 1rem; font-weight: 700; color: #fff; background: #333; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
         .match-player-score.winner-score { background: var(--vct-red); }
         .btn-play { background: var(--vct-red); color: white; border: none; padding: 8px 15px; font-weight: bold; cursor: pointer; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); width: auto; }
-
-        /* Tiers & Decorations */
-        .tier-knockout { border-left-color: #555; }
-        .tier-knockout.active { border-left-color: var(--vct-red); }
-        
-        .tier-semi { border-left-color: silver; background: linear-gradient(90deg, #1a232c, var(--vct-gray)); }
-        .tier-semi.active { border-left-color: var(--vct-red); box-shadow: 0 4px 10px rgba(255,70,85,0.2); }
-        
-        .tier-final { border-left-color: var(--vct-gold); background: linear-gradient(90deg, #2a2318, var(--vct-gray)); }
-        .tier-final.active { border-left-color: var(--vct-red); box-shadow: 0 4px 15px rgba(226,185,56,0.3); }
-        
-        .tier-grand { border: 2px solid var(--vct-red); background: linear-gradient(135deg, #3a1c1f, var(--vct-gray)); transform: scale(1.02); }
-        .tier-grand.active { box-shadow: 0 0 25px rgba(255,70,85,0.6); }
 
         /* Scoreboard */
         .match-header { text-align: center; margin-bottom: 20px; }
@@ -118,41 +115,42 @@
         
         .result-content { text-align: center; }
         .result-content h1 { font-size: 4rem; color: var(--vct-gold); margin-bottom: 10px; }
+        #result-winner-name { font-size: 2.5rem; margin-bottom: 30px; }
 
-        /* Champion Animation Overlay */
-        #champion-screen { z-index: 2000; background: rgba(15, 25, 35, 0.95); }
-        .champion-content { text-align: center; animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; position: relative; z-index: 2001; }
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .champion-title { font-size: 6rem; color: var(--vct-gold); text-shadow: 0 0 30px var(--vct-gold); margin: 0 0 10px 0; line-height: 1; }
-        .champion-name { font-size: 3rem; color: var(--vct-light); margin-bottom: 40px; background: var(--vct-red); padding: 10px 30px; clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%); }
-        
         /* Format Rules */
         .rule-block { background: var(--vct-gray); padding: 15px; border-left: 4px solid var(--vct-cyan); margin-bottom: 15px; }
         .rule-block h4 { margin-top: 0; color: var(--vct-cyan); font-size: 1.2rem; margin-bottom: 10px; }
         .rule-block ul { margin: 0; padding-left: 20px; line-height: 1.6; }
+        .table-responsive { width: 100%; overflow-x: auto; } /* スマホ用テーブルスクロール */
 
         /* Mobile UI Adjustments */
         @media (max-width: 600px) {
-            .tabs { margin-bottom: 15px; }
-            .tab-btn { flex: 1 1 30%; font-size: 0.9rem; padding: 10px 5px; }
+            #app { padding: 10px; }
+            .tabs { margin-bottom: 15px; padding-bottom: 5px; }
+            .tab-btn { font-size: 1rem; padding: 12px 15px; }
             h2 { font-size: 1.4rem; }
             
             .tree-stage { flex-direction: column; gap: 10px; }
             
+            /* Scoreboard */
             .scoreboard { flex-direction: column; gap: 10px; padding: 10px; background: transparent; border: none; }
             .player-card { width: 100%; border: 1px solid #333; }
             .vs { display: none; }
+            .score { font-size: 5rem; }
             
+            /* Shop */
             .shop-container { flex-direction: column; gap: 20px; margin: 10px 0; }
-            .shop-player { width: 100%; }
+            .shop-player { width: 100%; padding: 15px; }
             
-            .score { font-size: 4rem; }
+            /* Results & Overlays */
+            .buy-content { padding: 20px; }
             .result-content h1 { font-size: 3rem; }
-            #result-winner-name { font-size: 2rem !important; }
-            .champion-title { font-size: 4rem; }
-            .champion-name { font-size: 2rem; }
+            #result-winner-name { font-size: 2rem; }
             
-            .match-player-row p { max-width: 90px; }
+            .match-player-row p { max-width: 120px; }
+            
+            /* Rules Table */
+            .rule-block table { min-width: 500px; } /* 小さい画面では横スクロールさせる */
         }
     </style>
 </head>
@@ -160,7 +158,7 @@
     <div id="app">
         <!-- Tabs -->
         <nav class="tabs">
-            <button class="tab-btn active" data-target="tab-register">1. 登録</button>
+            <button class="tab-btn active" data-target="tab-register">1. エントリー</button>
             <button class="tab-btn" data-target="tab-knockouts">2. 予選</button>
             <button class="tab-btn" data-target="tab-bracket">3. 本戦</button>
             <button class="tab-btn" data-target="tab-match" id="nav-match-btn">4. 進行</button>
@@ -316,48 +314,49 @@
                         <li><strong>BO3形式</strong>（2ゲーム先取で勝利）。1ゲーム11点マッチ（デュースあり）。</li>
                         <li>第1ゲーム（ピストルラウンド）の初期資金は <strong>$800</strong>。</li>
                         <li><strong>毎ポイント終了時</strong>に資金が振り込まれる。（勝利: +$3,000 / 敗北: +$1,900 / 連敗ボーナス: +$500ずつ加算 最大+$1000）。上限所持金は $9,000。</li>
-                        <li><strong>スリッパラウンド:</strong> 0〜4点（試合全体）。BUY PAUSEは発生しません。</li>
-                        <li><strong>通常ラウンド:</strong> 5点目以降〜OT。<strong>6点ごと</strong>にBUY PAUSEが発生し、装備の変更・購入が可能です。</li>
+                        <li><strong>スリッパラウンド:</strong> 0〜2点（試合全体）。BUY PAUSEは発生しません。</li>
+                        <li><strong>通常ラウンド:</strong> 3点目以降〜OT。<strong>6点ごと</strong>にBUY PAUSEが発生し、装備の変更・購入が可能です。</li>
                     </ul>
                 </div>
                 <div class="rule-block" style="border-left-color: var(--vct-gold);">
                     <h4>ショップアイテム一覧</h4>
-                    <table style="width: 100%; text-align: left; margin-top: 10px; border-collapse: collapse;">
-                        <tr style="border-bottom: 1px solid #444;">
-                            <th style="padding: 8px;">アイテム</th>
-                            <th style="padding: 8px;">コスト</th>
-                            <th style="padding: 8px;">効果・制限</th>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #333;">
-                            <td style="padding: 8px;">スリッパ</td>
-                            <td style="padding: 8px; color: #4ade80;">$0</td>
-                            <td style="padding: 8px; color: #aaa;">デフォルト装備 (無料)。</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #333;">
-                            <td style="padding: 8px;">サブラケット</td>
-                            <td style="padding: 8px; color: #4ade80;">$1,600</td>
-                            <td style="padding: 8px; color: #aaa;">サブ用のラケットを使用可能。</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #333;">
-                            <td style="padding: 8px;">メインラケット</td>
-                            <td style="padding: 8px; color: #4ade80;">$2,900</td>
-                            <td style="padding: 8px; color: #aaa;">メインのラケットを使用可能。</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #333;">
-                            <td style="padding: 8px;">サーブ自由</td>
-                            <td style="padding: 8px; color: #4ade80;">$1,000</td>
-                            <td style="padding: 8px; color: #aaa;">買わない場合は「制限サーブ」となる。</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; color: var(--vct-gold); font-weight: bold;">オペレーター</td>
-                            <td style="padding: 8px; color: #4ade80; font-weight: bold;">$4,700</td>
-                            <td style="padding: 8px; color: var(--vct-light);"><strong>所持している間、取得ポイントが2倍(2点)になる。</strong></td>
-                        </tr>
-                    </table>
+                    <div class="table-responsive">
+                        <table style="width: 100%; text-align: left; margin-top: 10px; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #444;">
+                                <th style="padding: 8px;">アイテム</th>
+                                <th style="padding: 8px;">コスト</th>
+                                <th style="padding: 8px;">効果・制限</th>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">スリッパ</td>
+                                <td style="padding: 8px; color: #4ade80;">$0</td>
+                                <td style="padding: 8px; color: #aaa;">デフォルト装備 (無料)。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">サブラケット</td>
+                                <td style="padding: 8px; color: #4ade80;">$1,600</td>
+                                <td style="padding: 8px; color: #aaa;">サブ用のラケットを使用可能。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">メインラケット</td>
+                                <td style="padding: 8px; color: #4ade80;">$2,900</td>
+                                <td style="padding: 8px; color: #aaa;">メインのラケットを使用可能。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 8px;">サーブ自由</td>
+                                <td style="padding: 8px; color: #4ade80;">$1,000</td>
+                                <td style="padding: 8px; color: #aaa;">買わない場合は「制限サーブ」となる。</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; color: var(--vct-gold); font-weight: bold;">オペレーター</td>
+                                <td style="padding: 8px; color: #4ade80; font-weight: bold;">$4,700</td>
+                                <td style="padding: 8px; color: var(--vct-light);"><strong>所持している間、取得ポイントが2倍(2点)になる。</strong></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <!-- 試合結果報酬 セクション (移動済み) -->
             <div class="bracket-section" style="border-color: var(--vct-gold); background: linear-gradient(135deg, rgba(226, 185, 56, 0.08), rgba(0,0,0,0.4)); margin-top: 30px;">
                 <h3 style="color: var(--vct-gold); border-bottom: 1px solid rgba(226, 185, 56, 0.5); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                     <span style="font-size: 1.4rem;">🏆</span> PRIZE - 試合結果報酬
@@ -449,7 +448,7 @@
         <section id="result-screen" class="screen overlay">
             <div class="result-content">
                 <h1 id="result-title">GAME WINNER</h1>
-                <h2 id="result-winner-name" style="border:none; font-size:2.5rem; margin-bottom:30px;">Player Name</h2>
+                <h2 id="result-winner-name">Player Name</h2>
                 <button id="btn-next-action" class="btn-primary" onclick="window.handleNextAction()">次のゲームへ</button>
             </div>
         </section>
@@ -463,15 +462,6 @@
                     <button id="msgbox-btn-ok" class="btn-primary" style="width:auto; min-width:100px;">OK</button>
                     <button id="msgbox-btn-cancel" class="btn-secondary hidden" style="width:auto; min-width:100px;">キャンセル</button>
                 </div>
-            </div>
-        </section>
-
-        <!-- Champion Animation Overlay -->
-        <section id="champion-screen" class="screen overlay">
-            <div class="champion-content">
-                <h1 class="champion-title">CHAMPION</h1>
-                <div class="champion-name" id="champion-disp-name">PLAYER NAME</div>
-                <button class="btn-primary" style="background-color: var(--vct-gold); color: #000;" onclick="window.closeChampion()">大会を終了する</button>
             </div>
         </section>
     </div>
@@ -541,6 +531,10 @@
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.screen:not(.overlay)').forEach(s => s.classList.remove('active'));
                 e.target.classList.add('active');
+                
+                // タブを中央にスクロール (スマホ対応)
+                e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                
                 document.getElementById(e.target.dataset.target).classList.add('active');
             });
         });
@@ -674,10 +668,10 @@
             }
 
             // 通常ラウンドの判定
-            // roundCount === 5 (0〜4点終わった直後) -> 初回BUY
-            // その後は6ラウンドごと (11, 17, 23...) にBUY
+            // roundCount === 3 (0〜2点終わった直後) -> 初回BUY
+            // その後は6ラウンドごと (9, 15, 21...) にBUY
             if (!state.isOT) {
-                if (state.roundCount === 5 || (state.roundCount > 5 && (state.roundCount - 5) % 6 === 0)) {
+                if (state.roundCount === 3 || (state.roundCount > 3 && (state.roundCount - 3) % 6 === 0)) {
                     showBuyScreen();
                 }
             }
@@ -800,13 +794,10 @@
             document.getElementById('result-screen').classList.remove('active');
             
             if (isMatchFinalized) {
-                // 試合終了 -> トーナメント表に戻る（UIモック動作）
+                // 試合終了 -> トーナメント表に戻る
                 document.getElementById('match-active').classList.add('hidden');
                 document.getElementById('match-setup').classList.remove('hidden');
                 document.querySelector('[data-target="tab-bracket"]').click();
-                
-                // ※本来はここでFirestoreに結果を保存し、大会表を再描画します。
-                
             } else {
                 // 次のゲームに向けた初期化
                 state.isOT = false;
@@ -851,7 +842,7 @@
         // 初期ロード
         fetchParticipants();
         
-        // Debug用: コンソールから手動で試合を開始できるコマンド
+        // Debug用: 手動で試合開始
         // startMatch("田中", "鈴木")
     </script>
 </body>
