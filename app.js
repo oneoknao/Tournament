@@ -3,15 +3,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebas
 import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // ⚠️ ここにご自身のFirebaseコンソールから取得したConfigを貼り付けてください
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDVXoiovn7IHTZFYo9-_ueuCWniN9BNwO8",
+  authDomain: "keirin-table-tennis-tour.firebaseapp.com",
+  projectId: "keirin-table-tennis-tour",
+  storageBucket: "keirin-table-tennis-tour.firebasestorage.app",
+  messagingSenderId: "26380855770",
+  appId: "1:26380855770:web:fa243fd95d8afcdcea38e3",
+  measurementId: "G-EDPVXY3NYW"
+};
 // Firebase初期化
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
