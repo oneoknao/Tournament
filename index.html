@@ -58,8 +58,13 @@
 
         .match-card { background: var(--vct-gray); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #555; position: relative; }
         .match-card.completed { opacity: 0.7; }
-        .match-info p { margin: 5px 0 0 0; font-size: 1.1rem; font-weight: 700; }
-        .match-info .winner { color: var(--vct-gold); }
+        
+        /* Match Info & Scores */
+        .match-player-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+        .match-player-row p { margin: 0; font-size: 1.1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+        .match-player-row p.winner { color: var(--vct-gold); }
+        .match-player-score { font-size: 1rem; font-weight: 700; color: #fff; background: #333; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
+        .match-player-score.winner-score { background: var(--vct-red); }
         .btn-play { background: var(--vct-red); color: white; border: none; padding: 8px 15px; font-weight: bold; cursor: pointer; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); width: auto; }
 
         /* Tiers & Decorations */
@@ -141,6 +146,8 @@
             #result-winner-name { font-size: 2rem !important; }
             .champion-title { font-size: 4rem; }
             .champion-name { font-size: 2rem; }
+            
+            .match-player-row p { max-width: 90px; }
         }
     </style>
 </head>
@@ -449,14 +456,14 @@
         document.getElementById('btn-init-bracket').addEventListener('click', async () => {
             if(participants.length < 6) return showMessage("エラー", "6名必要です");
             const initialBracket = [
-                { id: "M1", pA: participants[2].name, pB: participants[5].name, winner: null },
-                { id: "M2", pA: participants[3].name, pB: participants[4].name, winner: null },
-                { id: "M3", pA: participants[0].name, pB: "TBD (M2勝者)", winner: null },
-                { id: "M4", pA: participants[1].name, pB: "TBD (M1勝者)", winner: null },
-                { id: "M5", pA: "TBD (M3敗者)", pB: "TBD (M4敗者)", winner: null },
-                { id: "M6", pA: "TBD (M3勝者)", pB: "TBD (M4勝者)", winner: null },
-                { id: "M7", pA: "TBD (M6敗者)", pB: "TBD (M5勝者)", winner: null },
-                { id: "M8", pA: "TBD (M6勝者)", pB: "TBD (M7勝者)", winner: null }
+                { id: "M1", pA: participants[2].name, pB: participants[5].name, winner: null, scoreA: 0, scoreB: 0 },
+                { id: "M2", pA: participants[3].name, pB: participants[4].name, winner: null, scoreA: 0, scoreB: 0 },
+                { id: "M3", pA: participants[0].name, pB: "TBD (M2勝者)", winner: null, scoreA: 0, scoreB: 0 },
+                { id: "M4", pA: participants[1].name, pB: "TBD (M1勝者)", winner: null, scoreA: 0, scoreB: 0 },
+                { id: "M5", pA: "TBD (M3敗者)", pB: "TBD (M4敗者)", winner: null, scoreA: 0, scoreB: 0 },
+                { id: "M6", pA: "TBD (M3勝者)", pB: "TBD (M4勝者)", winner: null, scoreA: 0, scoreB: 0 },
+                { id: "M7", pA: "TBD (M6敗者)", pB: "TBD (M5勝者)", winner: null, scoreA: 0, scoreB: 0 },
+                { id: "M8", pA: "TBD (M6勝者)", pB: "TBD (M7勝者)", winner: null, scoreA: 0, scoreB: 0 }
             ];
             await setDoc(doc(db, "tournament", "bracket"), { matches: initialBracket });
             showMessage("完了", "予選およびブラケット表を生成しました！");
@@ -504,12 +511,18 @@
                 let card = document.createElement('div');
                 card.className = `match-card ${tierClass} ${m.winner ? 'completed' : isPlayable ? 'active' : ''}`;
                 card.innerHTML = `
-                    <div class="match-info">
+                    <div class="match-info" style="flex: 1; margin-right: 15px;">
                         <span style="color:#aaa; font-size:0.8rem;">${m.id}</span>
-                        <p class="${m.winner === m.pA ? 'winner' : ''}">${m.pA}</p>
-                        <p class="${m.winner === m.pB ? 'winner' : ''}">${m.pB}</p>
+                        <div class="match-player-row">
+                            <p class="${m.winner === m.pA ? 'winner' : ''}">${m.pA}</p>
+                            ${m.winner ? `<span class="match-player-score ${m.winner === m.pA ? 'winner-score' : ''}">${m.scoreA !== undefined ? m.scoreA : '-'}</span>` : ''}
+                        </div>
+                        <div class="match-player-row">
+                            <p class="${m.winner === m.pB ? 'winner' : ''}">${m.pB}</p>
+                            ${m.winner ? `<span class="match-player-score ${m.winner === m.pB ? 'winner-score' : ''}">${m.scoreB !== undefined ? m.scoreB : '-'}</span>` : ''}
+                        </div>
                     </div>
-                    ${m.winner ? `<span style="color:var(--vct-gold); font-weight:bold;">${m.winner} WIN</span>` : 
+                    ${m.winner ? `<span style="color:var(--vct-gold); font-weight:bold; font-size: 0.9rem;">WIN</span>` : 
                       isPlayable ? `<button class="btn-play" onclick="window.setupMatch('${m.id}', '${m.pA}', '${m.pB}')">PLAY</button>` : `<span style="color:#555; font-size:0.8rem;">WAITING</span>`}
                 `;
 
@@ -559,21 +572,30 @@
             scorer.score += pts; scorer.roundPts += pts;
             updateUI();
 
+            // 1. 勝利判定
             if (scorer.score >= 11 && (scorer.score - opponent.score) >= 2) { handleGameEnd(scorerKey); return; }
-            if (state.players.A.score === 10 && state.players.B.score === 10 && !state.isOT) { await triggerOvertime(); return; }
-            if (!state.isOT && (state.players.A.score + state.players.B.score) % 6 === 0) triggerBuyPhase();
+            
+            // 2. OT判定 (両者が10点以上に達した場合に発動)
+            if (state.players.A.score >= 10 && state.players.B.score >= 10 && !state.isOT) { await triggerOvertime(); return; }
+            
+            // 3. バイフェーズ判定 (両者のラウンド獲得ポイントの合計が6以上になった場合)
+            if (!state.isOT && (state.players.A.roundPts + state.players.B.roundPts) >= 6) triggerBuyPhase();
         };
 
         // --- Economy & Buy Phase ---
         function triggerBuyPhase() {
+            const totalRndPts = state.players.A.roundPts + state.players.B.roundPts;
+            
             ['A', 'B'].forEach(key => {
                 const p = state.players[key];
                 let income = 0;
-                if (p.roundPts >= 4) { income = ECON.WIN; p.lossStreak = 0; } 
-                else if (p.roundPts <= 2) { income = ECON.LOSS + Math.min(1000, p.lossStreak * ECON.LOSS_BONUS); p.lossStreak++; } 
+                // OPの影響で合計が6を越えた場合も考慮し、過半数を取得した側をラウンド勝者とする
+                if (p.roundPts > totalRndPts / 2) { income = ECON.WIN; p.lossStreak = 0; } 
+                else if (p.roundPts < totalRndPts / 2) { income = ECON.LOSS + Math.min(1000, p.lossStreak * ECON.LOSS_BONUS); p.lossStreak++; } 
                 else income = ECON.DRAW;
+                
                 p.credits = Math.min(ECON.MAX, p.credits + income);
-                p.roundPts = 0;
+                p.roundPts = 0; // 超過分も含めてリセット
             });
             document.getElementById('shop-credits-A').innerText = state.players.A.credits.toLocaleString();
             document.getElementById('shop-credits-B').innerText = state.players.B.credits.toLocaleString();
@@ -654,6 +676,11 @@
             if(matchIndex === -1) return;
             const match = tournament[matchIndex];
             match.winner = winnerName;
+            
+            // スコア(マップカウント)の保存
+            match.scoreA = state.players.A.gamesWon;
+            match.scoreB = state.players.B.gamesWon;
+
             const loserName = match.pA === winnerName ? match.pB : match.pA;
 
             const routing = {
