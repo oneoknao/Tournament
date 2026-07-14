@@ -110,6 +110,9 @@
         .shop-player label:hover { border-color: #555; }
         .cost { color: #4ade80; font-weight: bold; }
         .op-label { border-left: 4px solid var(--vct-gold) !important; }
+        
+        .ot-option { border-left: 4px solid var(--vct-cyan) !important; font-weight: bold; }
+        .ot-option-op { border-left: 4px solid var(--vct-gold) !important; font-weight: bold; }
 
         #ot-banner { background: var(--vct-red); color: white; text-align: center; padding: 10px; font-weight: 700; font-size: 1.2rem; margin-bottom: 10px; }
         
@@ -166,7 +169,7 @@
 
         <!-- Tab 1: Registration -->
         <section id="tab-register" class="screen active">
-            <h2>参加者登録 (Firestore)</h2>
+            <h2>エントリー</h2>
             <div class="input-group">
                 <input type="text" id="reg-name" placeholder="選手名 (例: 田中)">
                 <input type="number" id="reg-rank" min="1" max="6" placeholder="現在のランキング (1〜6位)">
@@ -181,35 +184,6 @@
                     <button id="btn-reset-bracket" class="btn-secondary">大会リセット</button>
                 </div>
             </div>
-
-            <!-- 試合結果報酬 セクション -->
-            <div class="bracket-section" style="border-color: var(--vct-gold); background: linear-gradient(135deg, rgba(226, 185, 56, 0.08), rgba(0,0,0,0.4)); margin-top: 30px;">
-                <h3 style="color: var(--vct-gold); border-bottom: 1px solid rgba(226, 185, 56, 0.5); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                    <span style="font-size: 1.4rem;">🏆</span> PRIZE - 試合結果報酬
-                </h3>
-                <ul style="list-style: none; padding: 0; margin: 0; font-size: 1.05rem;">
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(226, 185, 56, 0.3);">
-                        <span style="color: var(--vct-gold); font-weight: 700; font-size: 1.2rem; text-shadow: 0 0 5px rgba(226,185,56,0.3);">1位</span>
-                        <span style="color: var(--vct-light);">2位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
-                        <span style="color: silver; font-weight: 700; font-size: 1.15rem;">2位</span>
-                        <span style="color: var(--vct-light);">3位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
-                        <span style="color: #cd7f32; font-weight: 700; font-size: 1.1rem;">3位</span>
-                        <span style="color: var(--vct-light);">4位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
-                        <span style="color: #aaa; font-weight: 700;">4位</span>
-                        <span style="color: var(--vct-light);">5位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
-                    </li>
-                    <li style="display: flex; justify-content: space-between; padding: 12px 10px;">
-                        <span style="color: #777; font-weight: 700;">5-6位</span>
-                        <span style="color: #ccc;">“先輩”からジュース1本 🧃</span>
-                    </li>
-                </ul>
-            </div>
         </section>
 
         <!-- Tab 2: Knockouts (予選) -->
@@ -219,7 +193,7 @@
             <div class="bracket-section">
                 <h3>UPPER KNOCKOUT</h3>
                 <div id="knockouts-container" style="display: flex; flex-direction: column; gap: 15px;">
-                    <!-- M1, M2 inserted here -->
+                    <!-- M1, M2 inserted here by JS -->
                 </div>
             </div>
         </section>
@@ -276,7 +250,7 @@
                         <span>MAPS</span>
                         <span id="games-won-B" style="color: var(--vct-red);">0</span>
                     </div>
-                    <div id="ot-banner" class="hidden">OVERTIME (1ポイント交代)</div>
+                    <div id="ot-banner" class="hidden">OVER TIME (デュース)</div>
                 </div>
                 
                 <div class="scoreboard">
@@ -341,9 +315,9 @@
                     <ul>
                         <li><strong>BO3形式</strong>（2ゲーム先取で勝利）。1ゲーム11点マッチ（デュースあり）。</li>
                         <li>第1ゲーム（ピストルラウンド）の初期資金は <strong>$800</strong>。</li>
-                        <li>ゲーム終了ごとに資金が振り込まれ、次のゲームの装備を購入する (Buy Phase)。</li>
-                        <li><strong>勝利: +$3,000</strong> / <strong>敗北: +$1,900</strong>。</li>
-                        <li>連敗ボーナス: 負けが続くと敗北報酬に +$500 ずつ加算 (最大 $2,900)。上限所持金は $9,000。</li>
+                        <li><strong>毎ポイント終了時</strong>に資金が振り込まれる。（勝利: +$3,000 / 敗北: +$1,900 / 連敗ボーナス: +$500ずつ加算 最大+$1000）。上限所持金は $9,000。</li>
+                        <li><strong>スリッパラウンド:</strong> 0〜4点（試合全体）。BUY PAUSEは発生しません。</li>
+                        <li><strong>通常ラウンド:</strong> 5点目以降〜OT。<strong>6点ごと</strong>にBUY PAUSEが発生し、装備の変更・購入が可能です。</li>
                     </ul>
                 </div>
                 <div class="rule-block" style="border-left-color: var(--vct-gold);">
@@ -382,37 +356,89 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- 試合結果報酬 セクション (移動済み) -->
+            <div class="bracket-section" style="border-color: var(--vct-gold); background: linear-gradient(135deg, rgba(226, 185, 56, 0.08), rgba(0,0,0,0.4)); margin-top: 30px;">
+                <h3 style="color: var(--vct-gold); border-bottom: 1px solid rgba(226, 185, 56, 0.5); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                    <span style="font-size: 1.4rem;">🏆</span> PRIZE - 試合結果報酬
+                </h3>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 1.05rem;">
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(226, 185, 56, 0.3);">
+                        <span style="color: var(--vct-gold); font-weight: 700; font-size: 1.2rem; text-shadow: 0 0 5px rgba(226,185,56,0.3);">1位</span>
+                        <span style="color: var(--vct-light);">2位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
+                        <span style="color: silver; font-weight: 700; font-size: 1.15rem;">2位</span>
+                        <span style="color: var(--vct-light);">3位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
+                        <span style="color: #cd7f32; font-weight: 700; font-size: 1.1rem;">3位</span>
+                        <span style="color: var(--vct-light);">4位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15);">
+                        <span style="color: #aaa; font-weight: 700;">4位</span>
+                        <span style="color: var(--vct-light);">5位以下から <span style="color:var(--vct-gold); font-weight:bold;">10勝</span> ずつ</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 12px 10px;">
+                        <span style="color: #777; font-weight: 700;">5-6位</span>
+                        <span style="color: #ccc;">“先輩”からジュース1本 🧃</span>
+                    </li>
+                </ul>
+            </div>
         </section>
 
         <!-- Overlay: Buy Phase -->
         <section id="buy-screen" class="screen overlay">
             <div class="buy-content">
                 <h2>BUY PHASE</h2>
-                <p style="color: #aaa;">ラウンド報酬が振り込まれました。装備を購入してください。</p>
+                <p style="color: #aaa;" id="buy-desc-text">資金を使用して装備を購入してください。（※現在の装備価値は所持金に還元されて計算されます）</p>
                 <div class="shop-container">
                     <!-- Shop A -->
                     <div class="shop-player">
                         <h3 id="shop-name-A">Player A</h3>
-                        <p style="font-size:1.5rem; margin:10px 0;">資金: $<span id="shop-credits-A" class="cost"></span></p>
-                        <select id="shop-weapon-A">
-                            <option value="0">スリッパ ($0)</option>
-                            <option value="1600">サブラケット ($1,600)</option>
-                            <option value="2900">メインラケット ($2,900)</option>
-                        </select>
-                        <label><input type="checkbox" id="shop-serve-A" value="1000"> サーブ自由 <span class="cost">$1,000</span></label>
-                        <label class="op-label"><input type="checkbox" id="shop-op-A" value="4700"> オペレーター (得点2倍) <span class="cost">$4,700</span></label>
+                        
+                        <!-- 通常ラウンド用 -->
+                        <div id="shop-normal-A">
+                            <p style="font-size:1.5rem; margin:10px 0;">資金: $<span id="shop-credits-A" class="cost"></span></p>
+                            <select id="shop-weapon-A">
+                                <option value="0">スリッパ ($0)</option>
+                                <option value="1600">サブラケット ($1,600)</option>
+                                <option value="2900">メインラケット ($2,900)</option>
+                            </select>
+                            <label><input type="checkbox" id="shop-serve-A" value="1000"> サーブ自由 <span class="cost">$1,000</span></label>
+                            <label class="op-label"><input type="checkbox" id="shop-op-A" value="4700"> オペレーター (得点2倍) <span class="cost">$4,700</span></label>
+                        </div>
+
+                        <!-- OT用装備選択 -->
+                        <div id="shop-ot-A" class="hidden">
+                            <p style="color:var(--vct-gold); font-weight:bold; margin-bottom:10px;">OVER TIME 装備選択</p>
+                            <label class="ot-option"><input type="radio" name="ot-equip-A" value="fullbuy" checked> フルバイ (メイン + サーブ自由)</label>
+                            <label class="ot-option-op"><input type="radio" name="ot-equip-A" value="op"> OP (オペレーター + メイン)</label>
+                        </div>
                     </div>
+                    
                     <!-- Shop B -->
                     <div class="shop-player">
                         <h3 id="shop-name-B">Player B</h3>
-                        <p style="font-size:1.5rem; margin:10px 0;">資金: $<span id="shop-credits-B" class="cost"></span></p>
-                        <select id="shop-weapon-B">
-                            <option value="0">スリッパ ($0)</option>
-                            <option value="1600">サブラケット ($1,600)</option>
-                            <option value="2900">メインラケット ($2,900)</option>
-                        </select>
-                        <label><input type="checkbox" id="shop-serve-B" value="1000"> サーブ自由 <span class="cost">$1,000</span></label>
-                        <label class="op-label"><input type="checkbox" id="shop-op-B" value="4700"> オペレーター (得点2倍) <span class="cost">$4,700</span></label>
+                        
+                        <!-- 通常ラウンド用 -->
+                        <div id="shop-normal-B">
+                            <p style="font-size:1.5rem; margin:10px 0;">資金: $<span id="shop-credits-B" class="cost"></span></p>
+                            <select id="shop-weapon-B">
+                                <option value="0">スリッパ ($0)</option>
+                                <option value="1600">サブラケット ($1,600)</option>
+                                <option value="2900">メインラケット ($2,900)</option>
+                            </select>
+                            <label><input type="checkbox" id="shop-serve-B" value="1000"> サーブ自由 <span class="cost">$1,000</span></label>
+                            <label class="op-label"><input type="checkbox" id="shop-op-B" value="4700"> オペレーター (得点2倍) <span class="cost">$4,700</span></label>
+                        </div>
+
+                        <!-- OT用装備選択 -->
+                        <div id="shop-ot-B" class="hidden">
+                            <p style="color:var(--vct-gold); font-weight:bold; margin-bottom:10px;">OVER TIME 装備選択</p>
+                            <label class="ot-option"><input type="radio" name="ot-equip-B" value="fullbuy" checked> フルバイ (メイン + サーブ自由)</label>
+                            <label class="ot-option-op"><input type="radio" name="ot-equip-B" value="op"> OP (オペレーター + メイン)</label>
+                        </div>
                     </div>
                 </div>
                 <button class="btn-primary" onclick="window.confirmBuy()">購入確定＆再開</button>
@@ -455,7 +481,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ⚠️ ご自身のFirebase Configに書き換えてください
         const firebaseConfig = {
             apiKey: "AIzaSyDVXoiovn7IHTZFYo9-_ueuCWniN9BNwO8",
             authDomain: "keirin-table-tennis-tour.firebaseapp.com",
@@ -471,7 +496,7 @@
 
         // --- Economy Settings ---
         const ECON = {
-            MAX: 9000, PISTOL: 800, WIN: 3000, LOSS: 1900, DRAW: 2500, LOSS_BONUS: 500,
+            MAX: 9000, PISTOL: 800, WIN: 3000, LOSS: 1900, LOSS_BONUS: 500,
             COST: { SUB: 1600, MAIN: 2900, SERVE: 1000, OP: 4700 }
         };
 
@@ -484,13 +509,14 @@
 
         let state = {
             isOT: false,
+            roundCount: 0, // 消化したポイント数 (BUYタイミング判定用)
             players: {
-                A: { name: "", score: 0, gamesWon: 0, credits: ECON.PISTOL, roundPts: 0, lossStreak: 0, weapon: 0, serve: 0, hasOp: false },
-                B: { name: "", score: 0, gamesWon: 0, credits: ECON.PISTOL, roundPts: 0, lossStreak: 0, weapon: 0, serve: 0, hasOp: false }
+                A: { name: "", score: 0, gamesWon: 0, credits: ECON.PISTOL, lossStreak: 0, weapon: 0, serve: 0, hasOp: false },
+                B: { name: "", score: 0, gamesWon: 0, credits: ECON.PISTOL, lossStreak: 0, weapon: 0, serve: 0, hasOp: false }
             }
         };
 
-        // カスタムメッセージ
+        // --- UI Utility: Message Box ---
         window.showMessage = function(title, text, isConfirm = false) {
             return new Promise((resolve) => {
                 document.getElementById('msgbox-title').innerText = title;
@@ -519,7 +545,28 @@
             });
         });
 
-        // --- 1. Registration ---
+        // --- 1. Registration & Firestore Dummy Logic ---
+        const fetchParticipants = async () => {
+            try {
+                const q = query(collection(db, "participants"), orderBy("rank"));
+                const snap = await getDocs(q);
+                participants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                const ul = document.getElementById('players-ul');
+                ul.innerHTML = "";
+                participants.forEach(p => {
+                    ul.innerHTML += `<li>Rank ${p.rank} : <strong>${p.name}</strong></li>`;
+                });
+                document.getElementById('player-count').innerText = participants.length;
+                
+                if (participants.length >= 6) {
+                    document.getElementById('btn-init-bracket').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.warn("Firestoreに接続できません。ローカルモードで動作します。", e);
+            }
+        };
+
         document.getElementById('btn-register').addEventListener('click', async () => {
             const name = document.getElementById('reg-name').value;
             const rank = parseInt(document.getElementById('reg-rank').value);
@@ -532,348 +579,280 @@
         });
 
         document.getElementById('btn-reset-players').addEventListener('click', async () => {
-            const isOk = await showMessage("確認", "登録済みの全選手データを削除しますか？", true);
+            const isOk = await showMessage("確認", "全選手データを削除しますか？", true);
             if(!isOk) return;
             try {
                 const snap = await getDocs(collection(db, "participants"));
-                const deletePromises = [];
-                snap.forEach(d => deletePromises.push(deleteDoc(d.ref)));
-                await Promise.all(deletePromises);
+                for(let d of snap.docs) await deleteDoc(d.ref);
                 fetchParticipants();
-                showMessage("完了", "選手登録をリセットしました");
-            } catch(e) { showMessage("エラー", "リセットエラー: " + e.message); }
+            } catch (e) {}
         });
 
-        async function fetchParticipants() {
-            try {
-                const q = query(collection(db, "participants"), orderBy("rank", "asc"));
-                const snap = await getDocs(q);
-                participants = [];
-                const ul = document.getElementById('players-ul'); ul.innerHTML = "";
-                snap.forEach(doc => {
-                    const p = doc.data(); participants.push(p);
-                    ul.innerHTML += `<li style="border-bottom:1px solid #333;">第${p.rank}シード: ${p.name}</li>`;
-                });
-                document.getElementById('player-count').innerText = participants.length;
-                if(participants.length >= 6) document.getElementById('btn-init-bracket').classList.remove('hidden');
-            } catch(e) { console.log("Init fetch waiting...", e.message); }
-        }
-        fetchParticipants();
-
-        // --- 2. Bracket Management (Split & Tree) ---
-        document.getElementById('btn-init-bracket').addEventListener('click', async () => {
-            if(participants.length < 6) return showMessage("エラー", "6名必要です");
-            const initialBracket = [
-                { id: "M1", pA: participants[2].name, pB: participants[5].name, winner: null, scoreA: 0, scoreB: 0 },
-                { id: "M2", pA: participants[3].name, pB: participants[4].name, winner: null, scoreA: 0, scoreB: 0 },
-                { id: "M3", pA: participants[0].name, pB: "TBD (M2勝者)", winner: null, scoreA: 0, scoreB: 0 },
-                { id: "M4", pA: participants[1].name, pB: "TBD (M1勝者)", winner: null, scoreA: 0, scoreB: 0 },
-                { id: "M5", pA: "TBD (M3敗者)", pB: "TBD (M4敗者)", winner: null, scoreA: 0, scoreB: 0 },
-                { id: "M6", pA: "TBD (M3勝者)", pB: "TBD (M4勝者)", winner: null, scoreA: 0, scoreB: 0 },
-                { id: "M7", pA: "TBD (M6敗者)", pB: "TBD (M5勝者)", winner: null, scoreA: 0, scoreB: 0 },
-                { id: "M8", pA: "TBD (M6勝者)", pB: "TBD (M7勝者)", winner: null, scoreA: 0, scoreB: 0 }
-            ];
-            await setDoc(doc(db, "tournament", "bracket"), { matches: initialBracket });
-            showMessage("完了", "大会表を生成しました！");
-            loadBracket();
-            document.querySelector('[data-target="tab-knockouts"]').click();
-        });
-
-        document.getElementById('btn-reset-bracket').addEventListener('click', async () => {
-            const isOk = await showMessage("確認", "大会結果とブラケットをリセットしますか？", true);
-            if(!isOk) return;
-            try {
-                await deleteDoc(doc(db, "tournament", "bracket"));
-                tournament = []; renderBracket();
-                showMessage("完了", "大会結果をリセットしました");
-            } catch(e) { showMessage("エラー", e.message); }
-        });
-
-        async function loadBracket() {
-            try {
-                const docSnap = await getDoc(doc(db, "tournament", "bracket"));
-                if(docSnap.exists()) { tournament = docSnap.data().matches; renderBracket(); }
-            } catch(e) {}
-        }
-
-        function renderBracket() {
-            // Containers
-            const koContainer = document.getElementById('knockouts-container');
-            const upperCol1 = document.getElementById('upper-col1');
-            const upperCol2 = document.getElementById('upper-col2');
-            const lowerCol1 = document.getElementById('lower-col1');
-            const lowerCol2 = document.getElementById('lower-col2');
-            const grandContainer = document.getElementById('grand-container');
-
-            [koContainer, upperCol1, upperCol2, lowerCol1, lowerCol2, grandContainer].forEach(c => c.innerHTML = "");
-
-            tournament.forEach(m => {
-                const isPlayable = !m.winner && !m.pA.includes("TBD") && !m.pB.includes("TBD");
-                
-                // Tier Classification for styling
-                let tierClass = "tier-knockout";
-                if(["M3", "M4", "M5"].includes(m.id)) tierClass = "tier-semi";
-                else if(["M6", "M7"].includes(m.id)) tierClass = "tier-final";
-                else if(m.id === "M8") tierClass = "tier-grand";
-
-                let card = document.createElement('div');
-                card.className = `match-card ${tierClass} ${m.winner ? 'completed' : isPlayable ? 'active' : ''}`;
-                card.innerHTML = `
-                    <div class="match-info" style="flex: 1; margin-right: 15px;">
-                        <span style="color:#aaa; font-size:0.8rem;">${m.id}</span>
-                        <div class="match-player-row">
-                            <p class="${m.winner === m.pA ? 'winner' : ''}">${m.pA}</p>
-                            ${m.winner ? `<span class="match-player-score ${m.winner === m.pA ? 'winner-score' : ''}">${m.scoreA !== undefined ? m.scoreA : '-'}</span>` : ''}
-                        </div>
-                        <div class="match-player-row">
-                            <p class="${m.winner === m.pB ? 'winner' : ''}">${m.pB}</p>
-                            ${m.winner ? `<span class="match-player-score ${m.winner === m.pB ? 'winner-score' : ''}">${m.scoreB !== undefined ? m.scoreB : '-'}</span>` : ''}
-                        </div>
-                    </div>
-                    ${m.winner ? `<span style="color:var(--vct-gold); font-weight:bold; font-size: 0.9rem;">WIN</span>` : 
-                      isPlayable ? `<button class="btn-play" onclick="window.setupMatch('${m.id}', '${m.pA}', '${m.pB}')">PLAY</button>` : `<span style="color:#555; font-size:0.8rem;">WAITING</span>`}
-                `;
-
-                // Distribution
-                if(m.id === "M1" || m.id === "M2") koContainer.appendChild(card);
-                else if(m.id === "M3" || m.id === "M4") upperCol1.appendChild(card);
-                else if(m.id === "M6") upperCol2.appendChild(card);
-                else if(m.id === "M5") lowerCol1.appendChild(card);
-                else if(m.id === "M7") lowerCol2.appendChild(card);
-                else if(m.id === "M8") grandContainer.appendChild(card);
-            });
-        }
-        loadBracket();
-
-        // --- 3. Match Logic & Event Recovery ---
-        window.setupMatch = function(matchId, pA, pB) {
-            currentMatchId = matchId;
-            state.players.A.name = pA; 
-            state.players.B.name = pB;
+        // --- 試合進行ロジック (Match Flow) ---
+        window.startMatch = function(playerAName, playerBName) {
+            state.players.A.name = playerAName || "Player A";
+            state.players.B.name = playerBName || "Player B";
             
-            ['A', 'B'].forEach(k => { 
-                state.players[k].gamesWon = 0; 
-                resetPlayerState(k, true); 
-            });
+            // ゲーム状態の初期化
             state.isOT = false;
+            state.roundCount = 0;
             isMatchFinalized = false;
-            matchWinnerTeam = null;
             
-            document.getElementById('current-match-title').innerText = `${matchId} : ${pA} vs ${pB}`;
+            ['A', 'B'].forEach(team => {
+                const p = state.players[team];
+                p.score = 0;
+                p.gamesWon = 0;
+                p.credits = ECON.PISTOL;
+                p.lossStreak = 0;
+                p.weapon = 0; // スリッパ
+                p.serve = 0;  // 制限
+                p.hasOp = false;
+                
+                document.getElementById(`display-name-${team}`).innerText = p.name;
+            });
+            
+            document.getElementById('ot-banner').classList.add('hidden');
+            updateScoreboard();
+            
+            // UI表示切替
             document.getElementById('match-setup').classList.add('hidden');
             document.getElementById('match-active').classList.remove('hidden');
-            
-            updateUI();
             document.getElementById('nav-match-btn').click();
         };
 
-        function resetPlayerState(k, isFullReset) {
-            state.players[k].score = 0;
-            state.players[k].roundPts = 0;
-            if(isFullReset) {
-                state.players[k].credits = ECON.PISTOL;
-                state.players[k].lossStreak = 0;
-                state.players[k].weapon = 0;
-                state.players[k].serve = 0;
-                state.players[k].hasOp = false;
-            } else {
-                state.players[k].weapon = 0;
-                state.players[k].serve = 0;
-                state.players[k].hasOp = false;
+        // 得点の追加とエコノミー計算
+        window.addPoint = function(winnerTeam) {
+            if (isMatchFinalized) return;
+            
+            const loserTeam = winnerTeam === 'A' ? 'B' : 'A';
+            const wPlayer = state.players[winnerTeam];
+            const lPlayer = state.players[loserTeam];
+
+            // 1. 得点追加 (OP所持なら2点)
+            const pts = wPlayer.hasOp ? 2 : 1;
+            wPlayer.score += pts;
+            
+            // ラウンド数(ラリー消化数)カウントアップ
+            state.roundCount++;
+
+            // 2. クレジット計算
+            wPlayer.credits += ECON.WIN;
+            if (wPlayer.credits > ECON.MAX) wPlayer.credits = ECON.MAX;
+            wPlayer.lossStreak = 0;
+            
+            let lossBonus = lPlayer.lossStreak * ECON.LOSS_BONUS;
+            if (lossBonus > 1000) lossBonus = 1000; // max loss bonus
+            lPlayer.credits += (ECON.LOSS + lossBonus);
+            if (lPlayer.credits > ECON.MAX) lPlayer.credits = ECON.MAX;
+            lPlayer.lossStreak += 1;
+
+            updateScoreboard();
+
+            // 3. ゲーム勝利判定 (11点以上かつ2点差)
+            if (wPlayer.score >= 11 && (wPlayer.score - lPlayer.score >= 2)) {
+                handleGameWin(winnerTeam);
+                return;
             }
-        }
 
-        function updateUI() {
-            ['A', 'B'].forEach(k => {
-                document.getElementById(`display-name-${k}`).innerText = state.players[k].name;
-                document.getElementById(`score-${k}`).innerText = state.players[k].score;
-                document.getElementById(`games-won-${k}`).innerText = state.players[k].gamesWon;
-                document.getElementById(`credits-${k}`).innerText = state.players[k].credits;
-                
-                let w = "スリッパ";
-                if(state.players[k].weapon == 1600) w = "サブラケット";
-                if(state.players[k].weapon == 2900) w = "メインラケット";
-                document.getElementById(`equip-weapon-${k}`).innerText = w;
-                
-                let s = state.players[k].serve == 1000 ? "サーブ自由" : "制限サーブ";
-                document.getElementById(`equip-serve-${k}`).innerText = s;
-
-                const opStatus = document.getElementById(`op-${k}`);
-                if (state.players[k].hasOp) opStatus.classList.add('active');
-                else opStatus.classList.remove('active');
-            });
-
-            const banner = document.getElementById('ot-banner');
-            if (state.isOT) banner.classList.remove('hidden');
-            else banner.classList.add('hidden');
-        }
-
-        // OP所持なら得点2倍(2点加算)
-        window.addPoint = function(team) {
-            const p = state.players[team];
-            const pointToAdd = p.hasOp ? 2 : 1; 
-            p.score += pointToAdd;
-            checkGameEnd();
-            updateUI();
+            // 4. 次ラウンドに向けた BUY PAUSE 判定
+            checkBuyPhase();
         };
 
-        function checkGameEnd() {
-            const sA = state.players.A.score;
-            const sB = state.players.B.score;
+        function checkBuyPhase() {
+            const aScore = state.players.A.score;
+            const bScore = state.players.B.score;
 
-            if (sA >= 11 || sB >= 11) {
-                if (Math.abs(sA - sB) >= 2) {
-                    const winner = sA > sB ? 'A' : 'B';
-                    processGameEnd(winner);
-                } else {
+            // OT突入またはOT中の判定 (10-10以上)
+            if (aScore >= 10 && bScore >= 10) {
+                if (!state.isOT) {
                     state.isOT = true;
+                    document.getElementById('ot-banner').classList.remove('hidden');
+                }
+                // OT中は毎ポイントBUY画面(専用)を出す
+                showBuyScreen();
+                return;
+            }
+
+            // 通常ラウンドの判定
+            // roundCount === 5 (0〜4点終わった直後) -> 初回BUY
+            // その後は6ラウンドごと (11, 17, 23...) にBUY
+            if (!state.isOT) {
+                if (state.roundCount === 5 || (state.roundCount > 5 && (state.roundCount - 5) % 6 === 0)) {
+                    showBuyScreen();
                 }
             }
         }
 
-        function processGameEnd(winnerTeam) {
-            const loserTeam = winnerTeam === 'A' ? 'B' : 'A';
+        // バイフェーズ表示
+        function showBuyScreen() {
+            const screen = document.getElementById('buy-screen');
+            const desc = document.getElementById('buy-desc-text');
             
-            state.players[winnerTeam].gamesWon += 1;
-            
-            state.players[loserTeam].lossStreak += 1;
-            state.players[winnerTeam].lossStreak = 0;
-            
-            state.players[winnerTeam].credits += ECON.WIN;
-            let lossMoney = ECON.LOSS + (state.players[loserTeam].lossStreak - 1) * ECON.LOSS_BONUS;
-            if(lossMoney > 2900) lossMoney = 2900; 
-            state.players[loserTeam].credits += lossMoney;
-            
-            ['A', 'B'].forEach(k => {
-                if(state.players[k].credits > ECON.MAX) state.players[k].credits = ECON.MAX;
-            });
-            
-            state.isOT = false;
+            if (state.isOT) {
+                desc.innerText = "OVER TIME (デュース) です。専用の装備を選択してください。";
+            } else {
+                desc.innerText = "資金を使用して装備を購入してください。（※現在の装備価値は所持金に還元されて計算されます）";
+            }
 
-            if(state.players[winnerTeam].gamesWon >= 2) {
+            ['A', 'B'].forEach(team => {
+                const p = state.players[team];
+                document.getElementById(`shop-name-${team}`).innerText = p.name;
+                
+                if (state.isOT) {
+                    document.getElementById(`shop-normal-${team}`).classList.add('hidden');
+                    document.getElementById(`shop-ot-${team}`).classList.remove('hidden');
+                } else {
+                    document.getElementById(`shop-normal-${team}`).classList.remove('hidden');
+                    document.getElementById(`shop-ot-${team}`).classList.add('hidden');
+                    
+                    document.getElementById(`shop-credits-${team}`).innerText = p.credits;
+                    document.getElementById(`shop-weapon-${team}`).value = p.weapon || "0";
+                    document.getElementById(`shop-serve-${team}`).checked = p.serve > 0;
+                    document.getElementById(`shop-op-${team}`).checked = p.hasOp;
+                }
+            });
+            screen.classList.add('active');
+        }
+
+        // 購入確定処理
+        window.confirmBuy = function() {
+            if (state.isOT) {
+                // OTの装備適用
+                ['A', 'B'].forEach(team => {
+                    const choice = document.querySelector(`input[name="ot-equip-${team}"]:checked`).value;
+                    const p = state.players[team];
+                    if (choice === 'fullbuy') {
+                        p.weapon = 2900; p.serve = 1000; p.hasOp = false;
+                    } else {
+                        p.weapon = 2900; p.serve = 0; p.hasOp = true;
+                    }
+                });
+            } else {
+                // 通常ラウンドの装備適用（差額計算）
+                let canBuy = true;
+                let costs = { A: 0, B: 0 };
+
+                ['A', 'B'].forEach(team => {
+                    const p = state.players[team];
+                    const w = parseInt(document.getElementById(`shop-weapon-${team}`).value);
+                    const s = document.getElementById(`shop-serve-${team}`).checked ? 1000 : 0;
+                    const o = document.getElementById(`shop-op-${team}`).checked ? 4700 : 0;
+                    
+                    // 現在の装備の価値を計算して差額で判定
+                    const currentVal = p.weapon + p.serve + (p.hasOp ? 4700 : 0);
+                    const newVal = w + s + o;
+                    const cost = newVal - currentVal;
+                    
+                    if (p.credits - cost < 0) {
+                        canBuy = false;
+                        alert(`Player ${team} の資金が足りません！ (不足: $${cost - p.credits})`);
+                    } else {
+                        costs[team] = cost;
+                    }
+                });
+
+                if (!canBuy) return;
+
+                // 確定してクレジットを引く
+                ['A', 'B'].forEach(team => {
+                    const p = state.players[team];
+                    const w = parseInt(document.getElementById(`shop-weapon-${team}`).value);
+                    const s = document.getElementById(`shop-serve-${team}`).checked ? 1000 : 0;
+                    const o = document.getElementById(`shop-op-${team}`).checked ? 4700 : 0;
+                    
+                    p.credits -= costs[team];
+                    p.weapon = w;
+                    p.serve = s;
+                    p.hasOp = o > 0;
+                });
+            }
+
+            document.getElementById('buy-screen').classList.remove('active');
+            updateScoreboard();
+        };
+
+        // ゲーム勝利（1マップ取得）の処理
+        function handleGameWin(winnerTeam) {
+            state.players[winnerTeam].gamesWon++;
+            updateScoreboard();
+
+            const winnerName = state.players[winnerTeam].name;
+            
+            if (state.players[winnerTeam].gamesWon >= 2) {
+                // マッチ(BO3)勝利
                 isMatchFinalized = true;
                 matchWinnerTeam = winnerTeam;
                 document.getElementById('result-title').innerText = "MATCH WINNER!";
-                document.getElementById('result-winner-name').innerText = state.players[winnerTeam].name;
-                document.getElementById('btn-next-action').innerText = "結果を保存して進む";
+                document.getElementById('result-winner-name').innerText = winnerName;
+                document.getElementById('btn-next-action').innerText = "トーナメントへ戻る";
+                document.getElementById('result-screen').classList.add('active');
             } else {
+                // マップ勝利（次のゲームへ）
                 document.getElementById('result-title').innerText = "GAME WINNER";
-                document.getElementById('result-winner-name').innerText = state.players[winnerTeam].name;
-                document.getElementById('btn-next-action').innerText = "BUY PHASEへ";
+                document.getElementById('result-winner-name').innerText = winnerName;
+                document.getElementById('btn-next-action').innerText = "次のゲームへ";
+                document.getElementById('result-screen').classList.add('active');
             }
-            document.getElementById('result-screen').classList.add('active');
         }
 
+        // 結果画面のボタンアクション
         window.handleNextAction = function() {
             document.getElementById('result-screen').classList.remove('active');
             
             if (isMatchFinalized) {
-                processMatchEnd(matchWinnerTeam);
-            } else {
-                ['A', 'B'].forEach(k => resetPlayerState(k, false));
-                showBuyPhase();
-            }
-        };
-
-        function showBuyPhase() {
-            ['A', 'B'].forEach(k => {
-                document.getElementById(`shop-name-${k}`).innerText = state.players[k].name;
-                document.getElementById(`shop-credits-${k}`).innerText = state.players[k].credits;
-                document.getElementById(`shop-weapon-${k}`).value = "0";
-                document.getElementById(`shop-serve-${k}`).checked = false;
-                document.getElementById(`shop-op-${k}`).checked = false;
-            });
-            updateUI();
-            document.getElementById('buy-screen').classList.add('active');
-        }
-
-        window.confirmBuy = function() {
-            let error = "";
-            ['A', 'B'].forEach(k => {
-                let cost = parseInt(document.getElementById(`shop-weapon-${k}`).value);
-                if(document.getElementById(`shop-serve-${k}`).checked) cost += ECON.COST.SERVE;
-                if(document.getElementById(`shop-op-${k}`).checked) cost += ECON.COST.OP;
-                
-                if(cost > state.players[k].credits) {
-                    error += `${state.players[k].name} の資金が足りません！ (必要: $${cost} / 所持: $${state.players[k].credits})\n`;
-                }
-            });
-
-            if(error) {
-                showMessage("購入エラー", error);
-                return;
-            }
-
-            ['A', 'B'].forEach(k => {
-                let cost = parseInt(document.getElementById(`shop-weapon-${k}`).value);
-                const hasServe = document.getElementById(`shop-serve-${k}`).checked;
-                const hasOp = document.getElementById(`shop-op-${k}`).checked;
-
-                if(hasServe) cost += ECON.COST.SERVE;
-                if(hasOp) cost += ECON.COST.OP;
-
-                state.players[k].credits -= cost;
-                state.players[k].weapon = parseInt(document.getElementById(`shop-weapon-${k}`).value);
-                state.players[k].serve = hasServe ? ECON.COST.SERVE : 0;
-                state.players[k].hasOp = hasOp;
-            });
-
-            document.getElementById('buy-screen').classList.remove('active');
-            updateUI();
-        };
-
-        async function processMatchEnd(winnerTeam) {
-            const winnerName = state.players[winnerTeam].name;
-            const loserTeam = winnerTeam === 'A' ? 'B' : 'A';
-            const loserName = state.players[loserTeam].name;
-
-            const matchIndex = tournament.findIndex(m => m.id === currentMatchId);
-            if (matchIndex !== -1) {
-                tournament[matchIndex].winner = winnerName;
-                tournament[matchIndex].scoreA = state.players.A.gamesWon;
-                tournament[matchIndex].scoreB = state.players.B.gamesWon;
-                advancePlayer(currentMatchId, winnerName, loserName);
-            }
-
-            try {
-                await setDoc(doc(db, "tournament", "bracket"), { matches: tournament });
-                renderBracket();
-            } catch(e) { console.error("Failed to save bracket", e); }
-
-            if (currentMatchId === "M8") {
-                document.getElementById('champion-disp-name').innerText = winnerName;
-                document.getElementById('champion-screen').classList.add('active');
-            } else {
+                // 試合終了 -> トーナメント表に戻る（UIモック動作）
                 document.getElementById('match-active').classList.add('hidden');
                 document.getElementById('match-setup').classList.remove('hidden');
                 document.querySelector('[data-target="tab-bracket"]').click();
+                
+                // ※本来はここでFirestoreに結果を保存し、大会表を再描画します。
+                
+            } else {
+                // 次のゲームに向けた初期化
+                state.isOT = false;
+                state.roundCount = 0;
+                ['A', 'B'].forEach(team => {
+                    const p = state.players[team];
+                    p.score = 0;
+                    p.credits = ECON.PISTOL; // 新ゲームはピストル額面に戻す
+                    p.lossStreak = 0;
+                    p.weapon = 0; // スリッパ
+                    p.serve = 0;
+                    p.hasOp = false;
+                });
+                document.getElementById('ot-banner').classList.add('hidden');
+                updateScoreboard();
             }
-        }
-
-        function advancePlayer(matchId, winnerName, loserName) {
-            function updateMatch(id, target, name) {
-                const m = tournament.find(x => x.id === id);
-                if(m) {
-                    if(target === 'A') m.pA = name;
-                    if(target === 'B') m.pB = name;
-                }
-            }
-            if(matchId === "M1") { updateMatch("M4", "B", winnerName); }
-            if(matchId === "M2") { updateMatch("M3", "B", winnerName); }
-            if(matchId === "M3") { updateMatch("M6", "A", winnerName); updateMatch("M5", "A", loserName); }
-            if(matchId === "M4") { updateMatch("M6", "B", winnerName); updateMatch("M5", "B", loserName); }
-            if(matchId === "M5") { updateMatch("M7", "B", winnerName); }
-            if(matchId === "M6") { updateMatch("M8", "A", winnerName); updateMatch("M7", "A", loserName); }
-            if(matchId === "M7") { updateMatch("M8", "B", winnerName); }
-        }
-
-        window.closeChampion = function() {
-            document.getElementById('champion-screen').classList.remove('active');
-            document.getElementById('match-active').classList.add('hidden');
-            document.getElementById('match-setup').classList.remove('hidden');
-            document.querySelector('[data-target="tab-bracket"]').click();
         };
 
+        // スコアボード描画更新
+        function updateScoreboard() {
+            const getWeaponName = (val) => {
+                if (val === 2900) return "メインラケット";
+                if (val === 1600) return "サブラケット";
+                return "スリッパ";
+            };
+
+            ['A', 'B'].forEach(team => {
+                const p = state.players[team];
+                document.getElementById(`score-${team}`).innerText = p.score;
+                document.getElementById(`credits-${team}`).innerText = p.credits;
+                document.getElementById(`games-won-${team}`).innerText = p.gamesWon;
+                
+                document.getElementById(`equip-weapon-${team}`).innerText = getWeaponName(p.weapon);
+                document.getElementById(`equip-serve-${team}`).innerText = p.serve > 0 ? "サーブ自由" : "制限サーブ";
+                
+                const opElem = document.getElementById(`op-${team}`);
+                if (p.hasOp) opElem.classList.add('active');
+                else opElem.classList.remove('active');
+            });
+        }
+
+        // 初期ロード
+        fetchParticipants();
+        
+        // Debug用: コンソールから手動で試合を開始できるコマンド
+        // startMatch("田中", "鈴木")
     </script>
 </body>
 </html>
